@@ -13,6 +13,7 @@ import suncertify.db.DatabaseFailureException;
 
 /**
  * This class manages the setting up of the Server in networked mode.
+ * 
  * @author Robbie Byrne
  * 
  */
@@ -27,8 +28,8 @@ public class NetworkedServer {
 	private static int MAX_PORT_NUMBER = 65535;
 
 	/**
-	 * No argument constructor of NetworkedServer class.
-	 * It creates a dialog to request server info from user.
+	 * No argument constructor of NetworkedServer class. It creates a dialog to
+	 * request server info from user.
 	 * 
 	 */
 	public NetworkedServer() {
@@ -69,15 +70,15 @@ public class NetworkedServer {
 	}
 
 	private static void createRegistry(int intPort) throws RemoteException {
-			if (!portCreated) 
-			{
-				LocateRegistry.createRegistry(intPort);
-			}
-			portCreated = true;
+		if (!portCreated) {
+			LocateRegistry.createRegistry(intPort);
+		}
+		portCreated = true;
 	}
-	
+
 	/*
-	 * Following methods are all to do with validating user input for setting up the server.
+	 * Following methods are all to do with validating user input for setting up
+	 * the server.
 	 */
 
 	private static boolean validServerSettings() {

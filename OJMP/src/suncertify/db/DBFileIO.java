@@ -22,6 +22,7 @@ public class DBFileIO {
 	private static String DATABASE_LOCATION = "";
 	private static final String ENCODING = "US-ASCII";
 	private static RandomAccessFile dbFileAccess;
+	private static int recordLength;
 	private static int numberOfFields;
 	private static String[] fieldNames;
 	private static int[] fieldLengths;
@@ -78,7 +79,7 @@ public class DBFileIO {
 
 		for (int x = 0; x < recordsCache.size(); x++) {
 			final Room room = recordsCache.get(x);
-			dbFileAccess.getChannel().position((recordSize * x));
+			dbFileAccess.getChannel().position((recordSize * x) + recordLength);
 
 			/*
 			 * Write a valid record flag
@@ -163,10 +164,10 @@ public class DBFileIO {
 		for (int i = 0; i < numberOfFields; i++) {
 
 			/*
-			 * One bytes store the number of bytes that a field name will
-			 * consume. This is read into an int.
+			 * One bytes (short) store the number of bytes that a field name
+			 * will consume. This is read into an int.
 			 */
-			final int nameLengthNumOfBytes = dbFileAccess.readUnsignedByte();
+			final int nameLengthNumOfBytes = dbFileAccess.read();
 
 			/*
 			 * The int that was just read tells us how many bytes to read, we
@@ -197,7 +198,7 @@ public class DBFileIO {
 			final Room room = new Room();
 
 			try {
-				EndOfFile = dbFileAccess.read();
+				EndOfFile = dbFileAccess.readByte();
 			} catch (final EOFException e) {
 				/*
 				 * A EOFException indicates that the end of file has been

@@ -8,20 +8,25 @@ import suncertify.model.Room;
 
 /**
  * This class is used to populate the data in a Jtable.
+ * 
  * @author Robbie Byrne
- *
+ * 
  */
 public class RoomTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 2591068190089882195L;
 	private List<Room> records;
 	private String[] headings;
-	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd",
+			Locale.ENGLISH);
 
 	/**
 	 * The constructor for the RoomTableModel class. It requires two inputs.
-	 * @param records A List of Room objects.
-	 * @param headings A String array of record headings.
+	 * 
+	 * @param records
+	 *            A List of Room objects.
+	 * @param headings
+	 *            A String array of record headings.
 	 */
 	public RoomTableModel(List<Room> records, String[] headings) {
 		this.records = records;
@@ -29,11 +34,10 @@ public class RoomTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * This method is used to update the RoomTableModel and ultimately the JTable
-	 * when new data is to be displayed.
+	 * This method is used to update the RoomTableModel and ultimately the
+	 * JTable when new data is to be displayed.
 	 */
-	public void updateTable()
-	{
+	public void updateTable() {
 		this.fireTableDataChanged();
 	}
 

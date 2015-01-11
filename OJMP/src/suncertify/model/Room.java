@@ -4,8 +4,9 @@ import java.io.Serializable;
 
 /**
  * This is a Room object representing a Room record.
+ * 
  * @author Robbie Byrne
- *
+ * 
  */
 public class Room implements Serializable {
 
@@ -21,7 +22,9 @@ public class Room implements Serializable {
 	static int numOfFeilds = 7;
 
 	/**
-	 * This method is used to convert a Room object to a String array to conform with supplied interface DBMain.
+	 * This method is used to convert a Room object to a String array to conform
+	 * with supplied interface DBMain.
+	 * 
 	 * @return String array representing a Room object/record.
 	 */
 	public String[] toStrArray() {
@@ -35,13 +38,15 @@ public class Room implements Serializable {
 
 	/**
 	 * This method us used to convert a String array into a Room object.
-	 * @param roomData String array of room record data.
+	 * 
+	 * @param roomData
+	 *            String array of room record data.
 	 * @return Room object corresponding to a room record.
 	 */
 	public static Room strToRoom(String[] roomData) {
 		return returnRoomObject(roomData);
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.getName() + " " + this.getLocation() + " " + this.getDate()
@@ -51,14 +56,18 @@ public class Room implements Serializable {
 
 	/**
 	 * Get room name.
+	 * 
 	 * @return Room name String.
 	 */
 	public String getName() {
 		return name;
 	}
 
-	/** Set room name.
-	 * @param name Room name String.
+	/**
+	 * Set room name.
+	 * 
+	 * @param name
+	 *            Room name String.
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -66,6 +75,7 @@ public class Room implements Serializable {
 
 	/**
 	 * Get room location.
+	 * 
 	 * @return Room location String.
 	 */
 	public String getLocation() {
@@ -74,7 +84,9 @@ public class Room implements Serializable {
 
 	/**
 	 * Set room location.
-	 * @param location Room location String.
+	 * 
+	 * @param location
+	 *            Room location String.
 	 */
 	public void setLocation(String location) {
 		Location = location;
@@ -82,6 +94,7 @@ public class Room implements Serializable {
 
 	/**
 	 * Get room size
+	 * 
 	 * @return Room size String
 	 */
 	public String getSize() {
@@ -90,7 +103,9 @@ public class Room implements Serializable {
 
 	/**
 	 * Set Room size
-	 * @param size Room size String.
+	 * 
+	 * @param size
+	 *            Room size String.
 	 */
 	public void setSize(String size) {
 		this.size = size;
@@ -98,7 +113,8 @@ public class Room implements Serializable {
 
 	/**
 	 * Get room smoking allowed.
-	 * @return String Y/N smoking String 
+	 * 
+	 * @return String Y/N smoking String
 	 */
 	public String getSmoking() {
 		return smoking;
@@ -106,7 +122,9 @@ public class Room implements Serializable {
 
 	/**
 	 * Set smoking allowed
-	 * @param smoking Y/N String 
+	 * 
+	 * @param smoking
+	 *            Y/N String
 	 */
 	public void setSmoking(String smoking) {
 		this.smoking = smoking;
@@ -114,6 +132,7 @@ public class Room implements Serializable {
 
 	/**
 	 * Get room rate.
+	 * 
 	 * @return room rate String.
 	 */
 	public String getRate() {
@@ -122,7 +141,9 @@ public class Room implements Serializable {
 
 	/**
 	 * Set room rate.
-	 * @param rate Room rate String.
+	 * 
+	 * @param rate
+	 *            Room rate String.
 	 */
 	public void setRate(String rate) {
 		this.rate = rate;
@@ -130,6 +151,7 @@ public class Room implements Serializable {
 
 	/**
 	 * Get room available date
+	 * 
 	 * @return date String.
 	 */
 	public String getDate() {
@@ -138,7 +160,9 @@ public class Room implements Serializable {
 
 	/**
 	 * Set room available date.
-	 * @param date Room available date String
+	 * 
+	 * @param date
+	 *            Room available date String
 	 */
 	public void setDate(String date) {
 		this.date = date;
@@ -146,6 +170,7 @@ public class Room implements Serializable {
 
 	/**
 	 * Get room owner.
+	 * 
 	 * @return Owner String.
 	 */
 	public String getOwner() {
@@ -154,12 +179,14 @@ public class Room implements Serializable {
 
 	/**
 	 * Set room owner.
-	 * @param owner Room owner String.
+	 * 
+	 * @param owner
+	 *            Room owner String.
 	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
-	
+
 	private static Room returnRoomObject(String[] roomData) {
 		Room room = new Room();
 

@@ -6,10 +6,11 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * This class is used in server and standalone mode to persist and also read
- * the suncertify.properties file which is located in the current working directory
+ * This class is used in server and standalone mode to persist and also read the
+ * suncertify.properties file which is located in the current working directory
+ * 
  * @author Robbie Byrne
- *
+ * 
  */
 public class PropertiesFileAccess {
 
@@ -22,7 +23,7 @@ public class PropertiesFileAccess {
 		String dbLocation = "";
 		String hostname = "";
 		String port = "";
-		
+
 		/**
 		 * try-with-resources Statement automatically closes resource so there
 		 * isn't any resource leaks and no need for a finally block.
@@ -73,14 +74,17 @@ public class PropertiesFileAccess {
 			properties.store(out, property + " updated.");
 
 		} catch (IOException e) {
-			System.out.println("Could not write to properties file, closing program.");
+			System.out
+					.println("Could not write to properties file, closing program.");
 			System.exit(1);
 		}
 	}
 
 	/**
 	 * Sets the db file location to the properties file.
-	 * @param dbLocation The db file location
+	 * 
+	 * @param dbLocation
+	 *            The db file location
 	 */
 	public static void setDbLocation(String dbLocation) {
 		savePropertiesToFile("dblocation", dbLocation);
@@ -88,14 +92,19 @@ public class PropertiesFileAccess {
 
 	/**
 	 * Sets the port number to the properties file.
-	 * @param port String port number
+	 * 
+	 * @param port
+	 *            String port number
 	 */
 	public static void setPort(String port) {
 		savePropertiesToFile("port", port);
 	}
 
-	/** Sets the hostname to the properties file.
-	 * @param hostname String hostname
+	/**
+	 * Sets the hostname to the properties file.
+	 * 
+	 * @param hostname
+	 *            String hostname
 	 */
 	public static void setHostname(String hostname) {
 		savePropertiesToFile("hostname", hostname);
@@ -103,6 +112,7 @@ public class PropertiesFileAccess {
 
 	/**
 	 * Gets the db file location from the properties file.
+	 * 
 	 * @return The db file location
 	 */
 	public static String getDbLocation() {
@@ -111,6 +121,7 @@ public class PropertiesFileAccess {
 
 	/**
 	 * Gets the port number from the properties file.
+	 * 
 	 * @return String port number
 	 */
 	public static String getPort() {
@@ -119,6 +130,7 @@ public class PropertiesFileAccess {
 
 	/**
 	 * Gets the hostname from the properties file.
+	 * 
 	 * @return The hostname.
 	 */
 	public static String getHostname() {
