@@ -16,13 +16,13 @@ import suncertify.db.SecurityException;
 import suncertify.server.NewRuntimeException;
 
 /**
- * This class represents the Model of the MVC. It manages the state of the
+ * This class represents the Model for the MVC. It manages the state of the
  * application.
  * 
  * @author Robbie Byrne
  * 
  */
-public class AppModel extends Observable implements AppModelInterface {
+public class AppModel extends Observable implements IAppModel {
 
 	private final DBAccessExtended data;
 	private Map<Integer, Long> actualIndexMap;
@@ -33,8 +33,8 @@ public class AppModel extends Observable implements AppModelInterface {
 	private static List<Observer> observers = new ArrayList<Observer>();
 
 	/**
-	 * This constructor takes an implementation of the DBMainExtended interface
-	 * as input.
+	 * This constructor takes an implementation of the DBAccessExtended
+	 * interface as input.
 	 * 
 	 * @param dbAccess
 	 *            implementation of the DBMainExtended interface.
@@ -44,14 +44,14 @@ public class AppModel extends Observable implements AppModelInterface {
 	}
 
 	@Override
-	public List<Room> getAllRecords() {
-		final List<Room> temp = getAllRecordsFromCache();
+	public List<HotelRoom> getAllRecords() {
+		final List<HotelRoom> temp = getAllRecordsFromCache();
 		totalRecords = temp.size();
 		return temp;
 	}
 
 	@Override
-	public Map<Integer, Room> queryRecords(final String name,
+	public Map<Integer, HotelRoom> queryRecords(final String name,
 			final String location) {
 		final String[] criteria = new String[numOfFeilds];
 		criteria[0] = name;
@@ -86,15 +86,14 @@ public class AppModel extends Observable implements AppModelInterface {
 	}
 
 	/**
-	 * This method is used to create a Room record.
+	 * This method is used to create a HotelRoom record.
 	 * 
 	 * @param room
-	 *            Room object.
+	 *            HotelRoom object.
 	 * @return int representing new room's record number
 	 * @throws DuplicateKeyException
-	 *             Exception can't be thrown due to Cache implementation.
 	 */
-	public long create(final Room room) throws DuplicateKeyException {
+	public long create(final HotelRoom room) throws DuplicateKeyException {
 		return data.createRecord(room.toStrArray());
 	}
 
@@ -126,8 +125,8 @@ public class AppModel extends Observable implements AppModelInterface {
 		return totalRecords;
 	}
 
-	private Map<Integer, Room> getMultipleRecords(final long[] recNumbers) {
-		final Map<Integer, Room> temp = new LinkedHashMap<Integer, Room>();
+	private Map<Integer, HotelRoom> getMultipleRecords(final long[] recNumbers) {
+		final Map<Integer, HotelRoom> temp = new LinkedHashMap<Integer, HotelRoom>();
 
 		if (recNumbers == null) {
 			return temp;
@@ -135,14 +134,10 @@ public class AppModel extends Observable implements AppModelInterface {
 			actualIndexMap = new LinkedHashMap<Integer, Long>();
 
 			for (int i = 0; i < recNumbers.length; i++) {
-				Room room = null;
+				HotelRoom room = null;
 				try {
-					room = Room.strToRoom(data.readRecord(recNumbers[i]));
+					room = HotelRoom.strToRoom(data.readRecord(recNumbers[i]));
 				} catch (final RecordNotFoundException e) {
-					/*
-					 * Record numbers were just obtained from Cache so should
-					 * exist.
-					 */
 				}
 				temp.put(i, room);
 				actualIndexMap.put(i, recNumbers[i]);
@@ -151,21 +146,20 @@ public class AppModel extends Observable implements AppModelInterface {
 		}
 	}
 
-	private List<Room> getAllRecordsFromCache() {
-		final List<Room> records = new ArrayList<Room>(10);
+	private List<HotelRoom> getAllRecordsFromCache() {
+		final List<HotelRoom> records = new ArrayList<HotelRoom>(10);
 		int recNo = 0;
 		while (true) {
 			try {
-				final Room room = Room.strToRoom(data.readRecord(recNo));
+				final HotelRoom room = HotelRoom.strToRoom(data
+						.readRecord(recNo));
 				records.add(room);
 				recNo++;
 			} catch (final NewRuntimeException e) {
 				final LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
 				lostConnectionDialog.processResponce();
 			} catch (final Exception e) {
-				/*
-				 * All records from Cache have been read.
-				 */
+				// All record have been read.
 				break;
 			}
 		}

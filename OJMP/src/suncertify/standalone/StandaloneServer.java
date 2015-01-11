@@ -7,7 +7,7 @@ import suncertify.controller.AppController;
 import suncertify.db.Data;
 import suncertify.db.DatabaseFailureException;
 import suncertify.model.AppModel;
-import suncertify.model.AppModelInterface;
+import suncertify.model.IAppModel;
 import suncertify.server.ServerClosingHook;
 import suncertify.view.AppView;
 
@@ -29,7 +29,7 @@ public class StandaloneServer {
 	 */
 	public StandaloneServer() {
 		new StandaloneSetupDialog("init");
-		AppModelInterface model = null;
+		IAppModel model = null;
 
 		while (model == null) {
 			try {

@@ -1,23 +1,31 @@
 package suncertify.db;
 
+/**
+ * Security exception thrown if incorrect cookie used to try unlock a locked
+ * record.
+ * 
+ * @author Robbie
+ * 
+ */
 public class SecurityException extends Exception {
 
 	private static final long serialVersionUID = 8944297262620274042L;
 	private String message;
 
 	/**
-	 * Zero argument constructor
+	 * Default constructor
 	 */
 	public SecurityException() {
 	}
 
 	/**
-	 * Second constructor
+	 * Constructor which takes in a message containing the reason for the
+	 * exception.
 	 * 
 	 * @param message
 	 *            describes the reason for exception.
 	 */
-	public SecurityException(String message) {
+	public SecurityException(final String message) {
 
 		this.message = message;
 	}

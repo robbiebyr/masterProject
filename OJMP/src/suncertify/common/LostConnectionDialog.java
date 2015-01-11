@@ -16,7 +16,8 @@ public class LostConnectionDialog {
 	 * client.
 	 */
 	public void processResponce() {
-		JOptionPane.showMessageDialog(null, "Connection Lost, Closing Client.");
+		JOptionPane.showMessageDialog(null,
+				"Connection has been Lost, Closing Client.");
 		System.exit(1);
 	}
 }

@@ -1,20 +1,17 @@
 package suncertify.db;
 
 /**
- * Unimplemented exception.
+ * Duplicate Key exception.
  * 
  * @author Robbie Byrne
  * 
  */
 public class DuplicateKeyException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 101L;
+	private static final long serialVersionUID = -6689165809485807888L;
 
 	/**
-	 * Zero argument constructor for DuplicateKeyException
+	 * Default constructor for DuplicateKeyException
 	 */
 	public DuplicateKeyException() {
 		super();
@@ -26,7 +23,7 @@ public class DuplicateKeyException extends Exception {
 	 * 
 	 * @param message
 	 */
-	public DuplicateKeyException(String message) {
+	public DuplicateKeyException(final String message) {
 
 		super(message);
 	}

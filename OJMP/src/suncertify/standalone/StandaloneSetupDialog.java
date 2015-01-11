@@ -13,8 +13,7 @@ import suncertify.common.PropertiesFileAccess;
  */
 public class StandaloneSetupDialog extends JFrame {
 
-	private static final long serialVersionUID = -15614843903557602L;
-
+	private static final long serialVersionUID = -5574802687830435034L;
 	private String dbLocation = "";
 	private String message = "Please enter db file location: ";
 	private final String error = "Db file not found, please try again or press Cancel to exit: ";

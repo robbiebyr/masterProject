@@ -6,47 +6,109 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import suncertify.model.Room;
+import suncertify.model.HotelRoom;
 
+/**
+ * DBCache is the local cached copy of the database. It is used by the
+ * standalone and networed clients.
+ * 
+ * @author Robbie
+ * 
+ */
 public class DBCache {
 
-	static CopyOnWriteArrayList<Room> recordsCache = new CopyOnWriteArrayList<Room>();
+	static CopyOnWriteArrayList<HotelRoom> recordsCache = new CopyOnWriteArrayList<HotelRoom>();
 	String[] fieldNames;
 
-	public DBCache(final CopyOnWriteArrayList<Room> records,
+	/**
+	 * Constructor for DBCache. Takes a collection of HotelRooms and String
+	 * array of record fields.
+	 * 
+	 * @param records
+	 *            This is a CopyOnWriteArrayList of Room objects.
+	 * @param fields
+	 *            This is a String array of the field names for all records.
+	 */
+	public DBCache(final CopyOnWriteArrayList<HotelRoom> records,
 			final String[] fields) {
 		recordsCache = records;
 		this.fieldNames = fields;
 	}
 
-	public List<Room> getAllRecords() {
+	/**
+	 * Returns all available HotelRooms records from DBCache as a list.
+	 * 
+	 * @return all available HotelRooms in DBCache.
+	 */
+	public List<HotelRoom> getAllRecords() {
 		return recordsCache;
 	}
 
-	public int addRecord(final Room room) {
+	/**
+	 * Allows new HotelRooms to be added to DBCache.
+	 * 
+	 * @param room
+	 *            to add to DBCache
+	 * @return record number for new HotelRoom
+	 */
+	public int addRecord(final HotelRoom room) {
 		recordsCache.add(room);
 		return recordsCache.size() + 1;
 	}
 
-	public Room readRecord(final long recNo) {
+	/**
+	 * Read the passed record from the DBCache.
+	 * 
+	 * @param recNo
+	 *            to read
+	 * @return The HotelRoom object related to the recNo passed
+	 */
+	public HotelRoom readRecord(final long recNo) {
 		return recordsCache.get((int) recNo);
 	}
 
+	/**
+	 * Used to get field names.
+	 * 
+	 * @return Array of fieldNames.
+	 */
 	public String[] getFieldNames() {
 		return fieldNames;
 	}
 
+	/**
+	 * Allows the passed record to be deleted from DBCache.
+	 * 
+	 * @param recNo
+	 *            the record to delete from DBCache
+	 */
 	public void deleteRecord(final long recNo) {
 		recordsCache.remove(recNo);
 	}
 
-	public void updateRecord(final long recNo, final String owner) {
-		final Room updatedRoom = recordsCache.get((int) recNo);
-		updatedRoom.setOwner(owner);
+	/**
+	 * Allows the passed record to be updated with the customer who booked the
+	 * HotelRoom.
+	 * 
+	 * @param recNo
+	 *            Record to update
+	 * @param customer
+	 *            Customer who has booked the room.
+	 */
+	public void updateRecord(final long recNo, final String customer) {
+		final HotelRoom updatedRoom = recordsCache.get((int) recNo);
+		updatedRoom.setOwner(customer);
 		recordsCache.set((int) recNo, updatedRoom);
 	}
 
-	public long[] find(final String[] criteria) {
+	/**
+	 * Is used to find a HotelRoom by the name or location.
+	 * 
+	 * @param criteria
+	 *            contains the name and/or the location to search for.
+	 * @return Array of recNo that match the search criteria
+	 */
+	public long[] findByCriteria(final String[] criteria) {
 
 		final List<Long> recNumbers = new ArrayList<>();
 		String name, location;
@@ -55,10 +117,10 @@ public class DBCache {
 		name = criteria[0];
 		location = criteria[1];
 
-		final Iterator<Room> roomIterator = recordsCache.iterator();
+		final Iterator<HotelRoom> roomIterator = recordsCache.iterator();
 
 		while (roomIterator.hasNext()) {
-			final Room room = roomIterator.next();
+			final HotelRoom room = roomIterator.next();
 
 			if (room.getName().toLowerCase().contains(name.toLowerCase())) {
 				if (room.getLocation().toLowerCase()
@@ -82,10 +144,20 @@ public class DBCache {
 		return results;
 	}
 
-	public boolean containsRecord(final long recNo) {
+	/**
+	 * Checks if record is in the DBCache
+	 * 
+	 * @param recNo
+	 *            to check if in DBCache
+	 * @return true if in DBCache, false otherwise
+	 */
+	public boolean isRecordInDBCache(final long recNo) {
 		return recordsCache.size() >= recNo;
 	}
 
+	/**
+	 * Used when server is shutdown. Writes the DBCache back to the db file.
+	 */
 	public static void dumpCacheToFile() {
 		int retrys = 0;
 		final int maxRetrys = 3;

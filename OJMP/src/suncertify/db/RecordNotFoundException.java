@@ -13,18 +13,19 @@ public class RecordNotFoundException extends Exception {
 	private String message;
 
 	/**
-	 * Zero argument constructor
+	 * Default constructor
 	 */
 	public RecordNotFoundException() {
 	}
 
 	/**
-	 * Second constructor
+	 * Constructor which takes in a message containing the reason for the
+	 * exception.
 	 * 
 	 * @param message
 	 *            describes the reason for exception.
 	 */
-	public RecordNotFoundException(String message) {
+	public RecordNotFoundException(final String message) {
 
 		this.message = message;
 	}

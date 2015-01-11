@@ -10,22 +10,22 @@ package suncertify.server;
 public class NewRuntimeException extends RuntimeException {
 
 	private static final long serialVersionUID = -4559666761635102468L;
-
 	private String message;
 
 	/**
-	 * Zero argument constructor
+	 * Default constructor
 	 */
 	public NewRuntimeException() {
 	}
 
 	/**
-	 * Second constructor
+	 * Constructor which takes in a message containing the reason for the
+	 * exception.
 	 * 
 	 * @param message
 	 *            describes the reason for exception.
 	 */
-	public NewRuntimeException(String message) {
+	public NewRuntimeException(final String message) {
 
 		this.message = message;
 	}

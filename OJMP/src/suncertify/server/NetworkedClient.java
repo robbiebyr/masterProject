@@ -7,7 +7,7 @@ import javax.swing.SwingUtilities;
 import suncertify.controller.AppController;
 import suncertify.db.DBAccessExtended;
 import suncertify.model.AppModel;
-import suncertify.model.AppModelInterface;
+import suncertify.model.IAppModel;
 import suncertify.view.AppView;
 
 /**
@@ -19,12 +19,12 @@ import suncertify.view.AppView;
  */
 public class NetworkedClient {
 
-	private DBMainRemote remoteDBAccess;
+	private DBAccessRemote remoteDBAccess;
 	private DBAccessExtended data;
 
 	/**
 	 * This is the constructor of the NetworkedClient class. It creates the
-	 * dialog to read in RMI server details from the user and if these are
+	 * dialog to read in RMI server details from the user and if they are
 	 * correct, the MVC architecture is created and the networked client gui is
 	 * displayed. If the details are incorrect, the user is given another chance
 	 * to enter the details or exit the program.
@@ -32,11 +32,11 @@ public class NetworkedClient {
 	public NetworkedClient() {
 
 		ClientRMIDialog dialog = new ClientRMIDialog("init");
-		AppModelInterface model = null;
+		IAppModel model = null;
 
 		while (model == null) {
 			try {
-				remoteDBAccess = (DBMainRemote) Naming.lookup("rmi://"
+				remoteDBAccess = (DBAccessRemote) Naming.lookup("rmi://"
 						+ dialog.getHostname() + ":" + dialog.getPort()
 						+ "/Server");
 
@@ -44,10 +44,7 @@ public class NetworkedClient {
 
 				model = new AppModel(data);
 
-			} catch (Exception e) {
-				/*
-				 * User is given another chance to enter correct details.
-				 */
+			} catch (final Exception e) {
 				dialog = new ClientRMIDialog("error");
 			}
 		}
@@ -56,6 +53,7 @@ public class NetworkedClient {
 		new AppController(model, view);
 
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				view.createAndShowGUI();
 				view.populateTableAllRecords();

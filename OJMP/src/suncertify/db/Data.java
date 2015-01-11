@@ -3,8 +3,16 @@ package suncertify.db;
 import java.io.IOException;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import suncertify.model.Room;
+import suncertify.model.HotelRoom;
 
+/**
+ * This Data class implements the provided DBAccess interface. This class allows
+ * the application to access the records from the database. It also provides a
+ * lock and unlock facility for records.
+ * 
+ * @author Robbie
+ * 
+ */
 public class Data implements DBAccessExtended {
 
 	private final DBFileIO dao;
@@ -13,8 +21,17 @@ public class Data implements DBAccessExtended {
 	private final int ownerIndex = 6;
 	private long cookie;
 
+	/**
+	 * This is the constructor of the Data class and takes the db file location
+	 * as input.
+	 * 
+	 * @param dbLocation
+	 *            Location of the db file.
+	 * @throws DatabaseFailureException
+	 *             Thrown if there is an issue accessing the db file.
+	 */
 	public Data(final String dbLocation) throws DatabaseFailureException {
-		CopyOnWriteArrayList<Room> records;
+		CopyOnWriteArrayList<HotelRoom> records;
 		String[] fields;
 		dao = new DBFileIO(dbLocation);
 
@@ -63,18 +80,18 @@ public class Data implements DBAccessExtended {
 
 	@Override
 	public long[] findByCriteria(final String[] criteria) {
-		return cache.find(criteria);
+		return cache.findByCriteria(criteria);
 	}
 
 	@Override
 	public long createRecord(final String[] data) throws DuplicateKeyException {
-		return cache.addRecord(Room.strToRoom(data));
+		return cache.addRecord(HotelRoom.strToRoom(data));
 	}
 
 	@Override
 	public long lockRecord(final long recNo) throws RecordNotFoundException {
 		Long cookie;
-		if (cache.containsRecord(recNo)) {
+		if (cache.isRecordInDBCache(recNo)) {
 			cookie = lockingManager.lock(recNo);
 		} else {
 			throw new RecordNotFoundException();
@@ -85,7 +102,7 @@ public class Data implements DBAccessExtended {
 	@Override
 	public void unlock(final long recNo, final long cookie)
 			throws SecurityException {
-		if (cache.containsRecord(recNo)) {
+		if (cache.isRecordInDBCache(recNo)) {
 			lockingManager.unlock(recNo, cookie);
 		}
 	}

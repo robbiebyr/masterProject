@@ -24,8 +24,7 @@ import suncertify.common.PropertiesFileAccess;
  */
 public class ServerRMIDialog extends JFrame {
 
-	private static final long serialVersionUID = 7123856555620056822L;
-
+	private static final long serialVersionUID = -5778088721825879637L;
 	private String dbLocation = "db-1x3.db";
 	private String hostname = "localhost";
 	private String port = "1099";
@@ -119,8 +118,7 @@ public class ServerRMIDialog extends JFrame {
 	}
 
 	/**
-	 * Settings which were entered by the user are written to the properties
-	 * file.
+	 * Write the setting provide by user to the properties file.
 	 */
 	public void writeSettingsToPropertiesFile() {
 		startButton.setEnabled(false);

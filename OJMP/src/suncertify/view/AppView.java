@@ -32,12 +32,12 @@ import javax.swing.event.ListSelectionListener;
 
 import suncertify.common.LostConnectionDialog;
 import suncertify.db.RecordNotFoundException;
-import suncertify.model.AppModelInterface;
-import suncertify.model.Room;
+import suncertify.model.HotelRoom;
+import suncertify.model.IAppModel;
 import suncertify.server.NewRuntimeException;
 
 /**
- * This class represents the View of the MVC architecture. It handles the GUI
+ * This class represents the View for the MVC architecture. It handles the GUI
  * aspects of the application in networked and standalone modes.
  * 
  * @author Robbie Byrne
@@ -45,26 +45,26 @@ import suncertify.server.NewRuntimeException;
  */
 public class AppView extends JFrame implements Observer {
 
-	private static final long serialVersionUID = 1158320825600438864L;
-
+	private static final long serialVersionUID = -3394046902872034481L;
 	private JLabel spacer, noteLabel;
-	private JButton bookButton = new JButton("Book");
-	private JButton searchButton = new JButton("Search");
-	private Border greyBorder = BorderFactory.createLineBorder(Color.GRAY);
+	private final JButton bookButton = new JButton("Book");
+	private final JButton searchButton = new JButton("Search");
+	private final Border greyBorder = BorderFactory
+			.createLineBorder(Color.GRAY);
 	private JScrollPane scrollPane;
-	private Dimension panelSize = new Dimension(357, 150);
-	private Dimension tableSize = new Dimension(704, 185);
-	private DefaultListSelectionModel selectionModel = new ForcedListSelectionModel();
+	private final Dimension panelSize = new Dimension(357, 150);
+	private final Dimension tableSize = new Dimension(704, 185);
+	private final DefaultListSelectionModel selectionModel = new ForcedListSelectionModel();
 	private JTable table;
-	private JTextField custId = new JTextField();
+	private final JTextField custId = new JTextField();
 	private JTextField nameField, locationField, custIdTextField;
-	private Color grayBlue = new Color(204, 204, 255, 255);
+	private final Color grayBlue = new Color(204, 204, 255, 255);
 
-	private AppModelInterface model;
-	private RoomTableModel tableModel;
-	private Map<Integer, Room> queryResults;
-	private String[] lastQuery = new String[2];
-	private int MAX_ID_DIGITS = 8;
+	private final IAppModel model;
+	private HotelRoomTableModel tableModel;
+	private Map<Integer, HotelRoom> queryResults;
+	private final String[] lastQuery = new String[2];
+	private final int MAX_ID_DIGITS = 8;
 
 	/**
 	 * This is the constructor for the AppView class.
@@ -73,28 +73,28 @@ public class AppView extends JFrame implements Observer {
 	 *            This is a reference to the model of the MVC application.
 	 * 
 	 */
-	public AppView(AppModelInterface model) {
+	public AppView(final IAppModel model) {
 		this.model = model;
 		model.addObserver(this);
 	}
 
 	/**
-	 * This public method is used to create and show the GUI. It is called when
-	 * the foundation classes of the application have been instantiated and the
+	 * This method is used to create and show the GUI. It is called when the
+	 * foundation classes of the application have been instantiated and the
 	 * application is ready to be graphically represented. It starts from
 	 * setting parameters on the JFrame and then adds JPanels and other
 	 * components required by the GUI.
 	 */
 	public void createAndShowGUI() {
 
-		this.setTitle("URLy Bird (Version 1.3.2)");
+		this.setTitle("URLy Bird (Version 1.2.3)");
 		this.setSize(750, 490);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.manageWindowClose();
 		this.setJMenuBar(new MenuBar());
 
-		JPanel content = new JPanel();
+		final JPanel content = new JPanel();
 		content.add(createSearchPanel());
 		content.add(createBookingPanel());
 		content.add(createTablePanel());
@@ -110,17 +110,17 @@ public class AppView extends JFrame implements Observer {
 	public void populateTableAllRecords() {
 		lastQuery[0] = "";
 		lastQuery[1] = "";
-		List<Room> rooms = null;
+		List<HotelRoom> rooms = null;
 		String[] columnNames = null;
 		try {
 			rooms = model.getAllRecords();
 			columnNames = model.getRoomFeilds();
-		} catch (NewRuntimeException e) {
-			LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
+		} catch (final NewRuntimeException e) {
+			final LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
 			lostConnectionDialog.processResponce();
 		}
 
-		tableModel = new RoomTableModel(rooms, columnNames);
+		tableModel = new HotelRoomTableModel(rooms, columnNames);
 		table.setModel(tableModel);
 	}
 
@@ -133,7 +133,8 @@ public class AppView extends JFrame implements Observer {
 	 * @param location
 	 *            Search term for location field.
 	 */
-	public void populateTableSearchQuery(String name, String location) {
+	public void populateTableSearchQuery(final String name,
+			final String location) {
 		lastQuery[0] = name;
 		lastQuery[1] = location;
 
@@ -141,23 +142,22 @@ public class AppView extends JFrame implements Observer {
 		try {
 			queryResults = model.queryRecords(name, location);
 			columnNames = model.getRoomFeilds();
-		} catch (NewRuntimeException e) {
-			LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
+		} catch (final NewRuntimeException e) {
+			final LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
 			lostConnectionDialog.processResponce();
 		}
 
-		List<Room> results = new ArrayList<Room>();
+		final List<HotelRoom> results = new ArrayList<HotelRoom>();
 
-		Iterator<Map.Entry<Integer, Room>> it = queryResults.entrySet()
-				.iterator();
+		final Iterator<Map.Entry<Integer, HotelRoom>> it = queryResults
+				.entrySet().iterator();
 
 		while (it.hasNext()) {
-			Map.Entry<Integer, Room> pairs = (Map.Entry<Integer, Room>) it
-					.next();
+			final Map.Entry<Integer, HotelRoom> pairs = it.next();
 			results.add(pairs.getValue());
 		}
 
-		tableModel = new RoomTableModel(results, columnNames);
+		tableModel = new HotelRoomTableModel(results, columnNames);
 		table.setModel(tableModel);
 	}
 
@@ -174,23 +174,22 @@ public class AppView extends JFrame implements Observer {
 		try {
 			queryResults = model.queryRecords(lastQuery[0], lastQuery[1]);
 			columnNames = model.getRoomFeilds();
-		} catch (NewRuntimeException e) {
-			LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
+		} catch (final NewRuntimeException e) {
+			final LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
 			lostConnectionDialog.processResponce();
 		}
 
-		List<Room> results = new ArrayList<Room>();
+		final List<HotelRoom> results = new ArrayList<HotelRoom>();
 
-		Iterator<Map.Entry<Integer, Room>> it = queryResults.entrySet()
-				.iterator();
+		final Iterator<Map.Entry<Integer, HotelRoom>> it = queryResults
+				.entrySet().iterator();
 
 		while (it.hasNext()) {
-			Map.Entry<Integer, Room> pairs = (Map.Entry<Integer, Room>) it
-					.next();
+			final Map.Entry<Integer, HotelRoom> pairs = it.next();
 			results.add(pairs.getValue());
 		}
 
-		tableModel = new RoomTableModel(results, columnNames);
+		tableModel = new HotelRoomTableModel(results, columnNames);
 		table.setModel(tableModel);
 	}
 
@@ -200,7 +199,7 @@ public class AppView extends JFrame implements Observer {
 	 * @param keyListener
 	 *            KeyListner object.
 	 */
-	public void addCustIDFieldListener(KeyListener keyListener) {
+	public void addCustIDFieldListener(final KeyListener keyListener) {
 		custId.addKeyListener(keyListener);
 	}
 
@@ -211,7 +210,7 @@ public class AppView extends JFrame implements Observer {
 	 * @param selection
 	 *            ListSelectionListener object.
 	 */
-	public void addTableListener(ListSelectionListener selection) {
+	public void addTableListener(final ListSelectionListener selection) {
 		selectionModel.addListSelectionListener(selection);
 	}
 
@@ -221,7 +220,7 @@ public class AppView extends JFrame implements Observer {
 	 * @param buttonListener
 	 *            ActionListener object.
 	 */
-	public void addBookButtonListener(ActionListener buttonListener) {
+	public void addBookButtonListener(final ActionListener buttonListener) {
 		bookButton.addActionListener(buttonListener);
 	}
 
@@ -231,7 +230,7 @@ public class AppView extends JFrame implements Observer {
 	 * @param buttonListener
 	 *            ActionListener object.
 	 */
-	public void addSearchButtonListener(ActionListener buttonListener) {
+	public void addSearchButtonListener(final ActionListener buttonListener) {
 		searchButton.addActionListener(buttonListener);
 	}
 
@@ -299,14 +298,11 @@ public class AppView extends JFrame implements Observer {
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
+	public void update(final Observable o, final Object arg) {
 		tableModel.updateTable();
 		try {
 			refreshPopulateTableSearchQuery();
-		} catch (RecordNotFoundException e) {
-			/*
-			 * No records returned so none are displayed.
-			 */
+		} catch (final RecordNotFoundException e) {
 		}
 	}
 
@@ -316,8 +312,8 @@ public class AppView extends JFrame implements Observer {
 		this.addWindowListener(new WindowAdapter() {
 
 			@Override
-			public void windowClosing(WindowEvent windowEvent) {
-				int reply = new CloseDialog().getResponce();
+			public void windowClosing(final WindowEvent windowEvent) {
+				final int reply = new CloseDialog().getResponce();
 				if (reply == JOptionPane.YES_OPTION) {
 					System.exit(0);
 				}
@@ -326,94 +322,94 @@ public class AppView extends JFrame implements Observer {
 	}
 
 	private JPanel createSearchPanel() {
-		JPanel searchPanel = new JPanel(new GridBagLayout());
+		final JPanel searchPanel = new JPanel(new GridBagLayout());
 
 		searchPanel.setBackground(grayBlue);
 		searchPanel.setPreferredSize(panelSize);
 		searchPanel.setVisible(true);
 		searchPanel.setBorder(greyBorder);
 
-		GridBagConstraints c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 0;
+		final GridBagConstraints gridConstraints = new GridBagConstraints();
+		gridConstraints.weightx = 0.5;
+		gridConstraints.fill = GridBagConstraints.HORIZONTAL;
+		gridConstraints.gridx = 0;
+		gridConstraints.gridy = 0;
 
-		JLabel searchHeading = new JLabel("SEARCH");
-		searchPanel.add(searchHeading, c);
+		final JLabel searchHeading = new JLabel("SEARCH");
+		searchPanel.add(searchHeading, gridConstraints);
 
-		JLabel nameLabel = new JLabel("Name: ");
-		c.gridy = 1;
-		searchPanel.add(nameLabel, c);
+		final JLabel nameLabel = new JLabel("Name: ");
+		gridConstraints.gridy = 1;
+		searchPanel.add(nameLabel, gridConstraints);
 
 		nameField = new JTextField();
-		c.gridx = 1;
-		searchPanel.add(nameField, c);
+		gridConstraints.gridx = 1;
+		searchPanel.add(nameField, gridConstraints);
 
-		JLabel locationLabel = new JLabel("Location: ");
-		c.gridx = 0;
-		c.gridy = 2;
-		searchPanel.add(locationLabel, c);
+		final JLabel locationLabel = new JLabel("Location: ");
+		gridConstraints.gridx = 0;
+		gridConstraints.gridy = 2;
+		searchPanel.add(locationLabel, gridConstraints);
 
 		locationField = new JTextField();
-		c.gridx = 1;
-		searchPanel.add(locationField, c);
+		gridConstraints.gridx = 1;
+		searchPanel.add(locationField, gridConstraints);
 
 		spacer = new JLabel();
 		spacer.setPreferredSize(new Dimension(20, 30));
-		searchPanel.add(spacer, c);
+		searchPanel.add(spacer, gridConstraints);
 
-		c.gridy = 4;
-		searchPanel.add(searchButton, c);
+		gridConstraints.gridy = 4;
+		searchPanel.add(searchButton, gridConstraints);
 
 		return searchPanel;
 	}
 
 	private JPanel createBookingPanel() {
 
-		JPanel bookingPanel = new JPanel(new GridBagLayout());
+		final JPanel bookingPanel = new JPanel(new GridBagLayout());
 
 		bookingPanel.setBackground(grayBlue);
 		bookingPanel.setPreferredSize(panelSize);
 		bookingPanel.setVisible(true);
 		bookingPanel.setBorder(greyBorder);
 
-		GridBagConstraints c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 0;
+		final GridBagConstraints gridConstraints = new GridBagConstraints();
+		gridConstraints.weightx = 0.5;
+		gridConstraints.fill = GridBagConstraints.HORIZONTAL;
+		gridConstraints.gridx = 0;
+		gridConstraints.gridy = 0;
 
-		JLabel bookingHeading = new JLabel("BOOKING");
-		bookingPanel.add(bookingHeading, c);
+		final JLabel bookingHeading = new JLabel("BOOKING");
+		bookingPanel.add(bookingHeading, gridConstraints);
 
-		JLabel custLabel = new JLabel("Customer ID: ");
-		c.gridy = 1;
+		final JLabel custLabel = new JLabel("Customer ID: ");
+		gridConstraints.gridy = 1;
 
-		bookingPanel.add(custLabel, c);
+		bookingPanel.add(custLabel, gridConstraints);
 
-		c.gridx = 1;
+		gridConstraints.gridx = 1;
 		custIdTextField = getCustIdTextField();
-		bookingPanel.add(custIdTextField, c);
+		bookingPanel.add(custIdTextField, gridConstraints);
 
 		spacer = new JLabel();
 		spacer.setPreferredSize(new Dimension(20, 30));
 
-		c.gridx = 0;
-		c.gridy = 2;
-		bookingPanel.add(spacer, c);
+		gridConstraints.gridx = 0;
+		gridConstraints.gridy = 2;
+		bookingPanel.add(spacer, gridConstraints);
 
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 3;
+		gridConstraints.fill = GridBagConstraints.HORIZONTAL;
+		gridConstraints.gridx = 1;
+		gridConstraints.gridy = 3;
 		bookButton.setEnabled(false);
-		bookingPanel.add(bookButton, c);
+		bookingPanel.add(bookButton, gridConstraints);
 
 		return bookingPanel;
 	}
 
 	private JPanel createTablePanel() {
-		JPanel tablePanel = new JPanel();
+		final JPanel tablePanel = new JPanel();
 		tablePanel.add(createTable());
 		tablePanel.setVisible(true);
 		return tablePanel;
@@ -440,7 +436,7 @@ public class AppView extends JFrame implements Observer {
 	}
 
 	private JPanel createMessageLabel() {
-		JPanel messagePanel = new JPanel();
+		final JPanel messagePanel = new JPanel();
 		noteLabel = new JLabel(
 				"Search by Name and/or Location or leave blank to return all results.");
 		noteLabel.setForeground(Color.BLUE);

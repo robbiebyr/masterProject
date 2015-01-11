@@ -23,20 +23,19 @@ public class MenuBar extends JMenuBar {
 	 * Zero argument constructor which creates menu bar
 	 */
 	public MenuBar() {
-		JMenu file = new JMenu("File");
-		// JMenu help = new JMenu("Help");
+		final JMenu file = new JMenu("File");
 
-		JMenuItem exitMenuItem = new JMenuItem("Exit");
-		JMenuItem helpMenuItem = new JMenuItem(
+		final JMenuItem exitMenuItem = new JMenuItem("Exit");
+		final JMenuItem helpMenuItem = new JMenuItem(
 				"Search & Book a Record Step by Step");
 
 		exitMenuItem.setMnemonic(KeyEvent.VK_E);
 		exitMenuItem.setToolTipText("Exit application");
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent event) {
+			public void actionPerformed(final ActionEvent event) {
 
-				int reply = new CloseDialog().getResponce();
+				final int reply = new CloseDialog().getResponce();
 				if (reply == JOptionPane.YES_OPTION) {
 					System.exit(0);
 				}
@@ -47,7 +46,7 @@ public class MenuBar extends JMenuBar {
 		helpMenuItem.setToolTipText("Application Help");
 		helpMenuItem.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent event) {
+			public void actionPerformed(final ActionEvent event) {
 
 				new HelpSystem();
 
@@ -55,10 +54,7 @@ public class MenuBar extends JMenuBar {
 		});
 
 		file.add(exitMenuItem);
-		// help.add(helpMenuItem);
-
 		this.add(file);
-		// this.add(help);
 		this.setVisible(true);
 	}
 }

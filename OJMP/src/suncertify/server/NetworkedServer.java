@@ -40,7 +40,7 @@ public class NetworkedServer {
 	class StartButtonListener implements ActionListener {
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed(final ActionEvent arg0) {
 
 			dialog.writeSettingsToPropertiesFile();
 
@@ -51,12 +51,12 @@ public class NetworkedServer {
 				}
 
 				dialog.setMessageLabel("Starting...");
-				int intPort = Integer.parseInt(port);
+				final int intPort = Integer.parseInt(port);
 				dbRemote = new DataRemote(dbLocation);
 				createRegistry(intPort);
 				Naming.rebind("rmi://" + hostname + "/Server", dbRemote);
 
-				ServerClosingHook serverFinalOps = new ServerClosingHook();
+				final ServerClosingHook serverFinalOps = new ServerClosingHook();
 				serverFinalOps.attachHook();
 				dialog.setMessageLabel("Server Online");
 
@@ -69,17 +69,13 @@ public class NetworkedServer {
 		}
 	}
 
-	private static void createRegistry(int intPort) throws RemoteException {
+	private static void createRegistry(final int intPort)
+			throws RemoteException {
 		if (!portCreated) {
 			LocateRegistry.createRegistry(intPort);
 		}
 		portCreated = true;
 	}
-
-	/*
-	 * Following methods are all to do with validating user input for setting up
-	 * the server.
-	 */
 
 	private static boolean validServerSettings() {
 
@@ -90,12 +86,12 @@ public class NetworkedServer {
 		return noEmptyFields() && dbFilePresent(dbLocation) && validPort(port);
 	}
 
-	private static boolean validPort(String port) {
+	private static boolean validPort(final String port) {
 		return (Integer.parseInt(port) > 0 && Integer.parseInt(port) < MAX_PORT_NUMBER);
 	}
 
-	private static boolean dbFilePresent(String dbLocation) {
-		File file = new File(dbLocation);
+	private static boolean dbFilePresent(final String dbLocation) {
+		final File file = new File(dbLocation);
 		return (file.exists() && !file.isDirectory());
 	}
 

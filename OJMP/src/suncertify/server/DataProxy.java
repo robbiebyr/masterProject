@@ -8,7 +8,7 @@ import suncertify.db.RecordNotFoundException;
 import suncertify.db.SecurityException;
 
 /**
- * This class is used as a wrapper around the DBMainRemote interface which is
+ * This class is used as a wrapper around the DBAccessRemote interface which is
  * used for RMI.
  * 
  * @author Robbie Byrne
@@ -16,7 +16,7 @@ import suncertify.db.SecurityException;
  */
 public class DataProxy implements DBAccessExtended {
 
-	private final DBMainRemote dataRemote;
+	private final DBAccessRemote dataRemote;
 	private long cookie;
 
 	/**
@@ -25,7 +25,7 @@ public class DataProxy implements DBAccessExtended {
 	 * @param remoteDBAccess
 	 *            Interface used for RMI
 	 */
-	public DataProxy(final DBMainRemote remoteDBAccess) {
+	public DataProxy(final DBAccessRemote remoteDBAccess) {
 		dataRemote = remoteDBAccess;
 	}
 

@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * This class is used in server and standalone mode to persist and also read the
- * suncertify.properties file which is located in the current working directory
+ * This class is used in server and standalone mode to persist to and read from
+ * the suncertify.properties file which is located in the current working
+ * directory
  * 
  * @author Robbie Byrne
  * 
@@ -17,7 +18,7 @@ public class PropertiesFileAccess {
 	static Properties properties = new Properties();;
 	static String fileLocation = "suncertify.properties";
 
-	private static String loadPropertyFromFile(String property) {
+	private static String loadPropertyFromFile(final String property) {
 
 		String result = null;
 		String dbLocation = "";
@@ -36,8 +37,9 @@ public class PropertiesFileAccess {
 			hostname = properties.getProperty("hostname");
 			port = properties.getProperty("port");
 
-		} catch (IOException e) {
-			System.out.println("Could not read properties, closing program.");
+		} catch (final IOException e) {
+			System.out
+					.println("Could not read from properties file, closing program.");
 			System.exit(1);
 		}
 
@@ -56,7 +58,8 @@ public class PropertiesFileAccess {
 		return result;
 	}
 
-	private static void savePropertiesToFile(String property, String value) {
+	private static void savePropertiesToFile(final String property,
+			final String value) {
 		try (FileOutputStream out = new FileOutputStream(fileLocation)) {
 
 			switch (property.toLowerCase()) {
@@ -73,7 +76,7 @@ public class PropertiesFileAccess {
 
 			properties.store(out, property + " updated.");
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			System.out
 					.println("Could not write to properties file, closing program.");
 			System.exit(1);
@@ -86,7 +89,7 @@ public class PropertiesFileAccess {
 	 * @param dbLocation
 	 *            The db file location
 	 */
-	public static void setDbLocation(String dbLocation) {
+	public static void setDbLocation(final String dbLocation) {
 		savePropertiesToFile("dblocation", dbLocation);
 	}
 
@@ -96,7 +99,7 @@ public class PropertiesFileAccess {
 	 * @param port
 	 *            String port number
 	 */
-	public static void setPort(String port) {
+	public static void setPort(final String port) {
 		savePropertiesToFile("port", port);
 	}
 
@@ -106,7 +109,7 @@ public class PropertiesFileAccess {
 	 * @param hostname
 	 *            String hostname
 	 */
-	public static void setHostname(String hostname) {
+	public static void setHostname(final String hostname) {
 		savePropertiesToFile("hostname", hostname);
 	}
 

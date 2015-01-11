@@ -14,7 +14,7 @@ public class ServerClosingHook {
 	/**
 	 * The hook is attached to monitor the current VM. When a shutdown is
 	 * initiated, the run method of the hook is called and in this case it
-	 * writes (dumps) the Cache to file.
+	 * writes (dumps) the DBCache to the db file.
 	 */
 	public void attachHook() {
 

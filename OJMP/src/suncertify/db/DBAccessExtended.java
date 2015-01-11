@@ -1,7 +1,8 @@
 package suncertify.db;
 
 /**
- * This class is used to additional methods to ones provided in DBMain interface
+ * This interface is used to add additional methods to ones provided in DBAccess
+ * interface
  * 
  * @author Robbie Byrne
  * 
@@ -13,10 +14,23 @@ public interface DBAccessExtended extends DBAccess {
 	 * 
 	 * @return String array of fields.
 	 */
-	String[] getFields();
+	public String[] getFields();
 
-	long getCookie();
+	/**
+	 * This method returns the clients cookie
+	 * 
+	 * @return long containing clients cookie
+	 */
+	public long getCookie();
 
-	boolean isLocked(long recNo) throws RecordNotFoundException;
+	/**
+	 * Checks if the passed record is locked or unlocked.
+	 * 
+	 * @param recNo
+	 *            record to check
+	 * @return Returns true if the record pass is locked, false otherwise
+	 * @throws RecordNotFoundException
+	 */
+	public boolean isLocked(long recNo) throws RecordNotFoundException;
 
 }

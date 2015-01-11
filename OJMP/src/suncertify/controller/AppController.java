@@ -12,23 +12,23 @@ import javax.swing.event.ListSelectionListener;
 import suncertify.db.RecordNotAvailableException;
 import suncertify.db.RecordNotFoundException;
 import suncertify.db.SecurityException;
-import suncertify.model.AppModelInterface;
+import suncertify.model.IAppModel;
 import suncertify.view.AppView;
 
 /**
- * This is the AppController class which is the controller of the MVC
- * architecture of this application. It has a reference to both the view and the
- * model of the application. - ActionListeners are used by the controller to
- * react to user operations on the view. - The controller may update the model
- * based on these user operations. - The controller may tell the view to change
- * what/how components are shown to end user based on user operations.
+ * This is the Acontroller of the MVC architecture of this application. It has a
+ * reference to both the view and the model of the application. ActionListeners
+ * are used by the controller to react to user operations on the view. The
+ * controller may update the model based on these user operations. The
+ * controller may tell the view to change what/how components are shown to end
+ * user based on user operations.
  * 
  * @author Robbie Byrne
  * 
  */
 public class AppController {
 
-	AppModelInterface model;
+	IAppModel model;
 	AppView view;
 	String owner = "";
 	long selectedRecord;
@@ -37,14 +37,15 @@ public class AppController {
 	int MAX_ID_DIGITS = 8;
 
 	/**
-	 * This is the constructor of the AppController class. It has two inputs.
+	 * This is the constructor of the AppController class. Takes the model and
+	 * view as inputs.
 	 * 
 	 * @param model
 	 *            This is the AppModelInterface.
 	 * @param view
 	 *            This is the AppView.
 	 */
-	public AppController(final AppModelInterface model, final AppView view) {
+	public AppController(final IAppModel model, final AppView view) {
 		this.model = model;
 		this.view = view;
 
@@ -152,11 +153,11 @@ public class AppController {
 		}
 
 		@Override
-		public void keyPressed(final KeyEvent e) {/* NOT REQUIRED */
+		public void keyPressed(final KeyEvent e) {
 		}
 
 		@Override
-		public void keyTyped(final KeyEvent e) {/* NOT REQUIRED */
+		public void keyTyped(final KeyEvent e) {
 		}
 	}
 

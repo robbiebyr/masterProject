@@ -4,7 +4,7 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.ListSelectionModel;
 
 /**
- * This class is used limit the selection of row on JTable to 1.
+ * This class is used to limit the selection of row on JTable to 1.
  * 
  * @author Robbie Byrne
  * 
@@ -26,9 +26,6 @@ public class ForcedListSelectionModel extends DefaultListSelectionModel {
 	}
 
 	@Override
-	public void removeSelectionInterval(int index0, int index1) {
-		/*
-		 * Not implemented.
-		 */
+	public void removeSelectionInterval(final int index0, final int index1) {
 	}
 }

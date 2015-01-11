@@ -28,7 +28,7 @@ public class Driver {
 
 		if (args.length > 1) {
 			System.out
-					.println("Please enter either \"alone\", \"server\", or leave blank for networked client");
+					.println("Please enter either \"alone\" for Standalone mode, \"server\" to run the server, or leave blank for networked client");
 			System.exit(0);
 		}
 

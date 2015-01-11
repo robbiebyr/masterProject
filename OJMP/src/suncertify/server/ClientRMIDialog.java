@@ -1,6 +1,7 @@
 package suncertify.server;
 
 import java.awt.Dimension;
+
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -18,8 +19,7 @@ import javax.swing.JTextField;
  */
 public class ClientRMIDialog extends JFrame {
 
-	private static final long serialVersionUID = 1044429952328953745L;
-
+	private static final long serialVersionUID = -7456905367188202593L;
 	String message = "Please enter server details";
 	String errorMessage = "DB Error, Please enter server details again";
 	String error = "Please try again or press Cancel to exit: ";
@@ -46,7 +46,7 @@ public class ClientRMIDialog extends JFrame {
 	 *            This string is used to determine if an error message should be
 	 *            displayed in the dialog.
 	 */
-	public ClientRMIDialog(String command) {
+	public ClientRMIDialog(final String command) {
 
 		inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.PAGE_AXIS));
 		labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.PAGE_AXIS));
@@ -72,8 +72,8 @@ public class ClientRMIDialog extends JFrame {
 			messageLabel.setText(error);
 		}
 
-		int result = JOptionPane.showConfirmDialog(this, parentPanel, message,
-				JOptionPane.OK_CANCEL_OPTION);
+		final int result = JOptionPane.showConfirmDialog(this, parentPanel,
+				message, JOptionPane.OK_CANCEL_OPTION);
 
 		if (result == JOptionPane.CANCEL_OPTION) {
 			System.exit(0);

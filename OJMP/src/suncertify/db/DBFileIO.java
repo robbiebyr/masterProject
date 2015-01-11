@@ -6,11 +6,11 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import suncertify.model.Room;
+import suncertify.model.HotelRoom;
 
 /**
- * This class is used to read the provided db file and to write the Cache to
- * file.
+ * This class is used to read the provided db file and to write the DBCache back
+ * to the file.
  * 
  * @author Robbie Byrne
  * 
@@ -31,16 +31,15 @@ public class DBFileIO {
 	private byte[] DELETED_RECORD = new byte[RECORD_FLAG];
 
 	/**
-	 * This is the constructor which take a String value representing the
-	 * database location.
+	 * Constructor which take in the database location.
 	 * 
-	 * @param location
+	 * @param dbLocation
 	 *            String representing the location of the db file.
 	 * @throws DatabaseFailureException
 	 *             This is thrown if there is an issue accessing the db file.
 	 */
-	public DBFileIO(final String location) throws DatabaseFailureException {
-		DATABASE_LOCATION = location;
+	public DBFileIO(final String dbLocation) throws DatabaseFailureException {
+		DATABASE_LOCATION = dbLocation;
 	}
 
 	/**
@@ -55,35 +54,24 @@ public class DBFileIO {
 	 * 
 	 * @param recordsCache
 	 *            This is a CopyOnWriteArrayList collection with all elements of
-	 *            type Room.
+	 *            type HotelRoom.
 	 * @throws IOException
 	 *             is thrown when there is an issue writing to the file.
 	 */
 	public static void writeAllRecordsToFile(
-			final CopyOnWriteArrayList<Room> recordsCache) throws IOException {
+			final CopyOnWriteArrayList<HotelRoom> recordsCache)
+			throws IOException {
 		dbFileAccess = new RandomAccessFile(DATABASE_LOCATION, "rw");
 
-		/*
-		 * Clear all records from file.
-		 */
-		clearToEOF();
+		clearDBFile();
 
-		/*
-		 * Using the offset in bytes between the start of the first record and
-		 * the start of the second record, I determine the value I can use to
-		 * skip to the start of any record. This should be scalable beyond the
-		 * amount of records currently in the file.
-		 */
 		final long recordSize = recordFileLocationsInBytes.get(1)
 				- recordFileLocationsInBytes.get(0);
 
 		for (int x = 0; x < recordsCache.size(); x++) {
-			final Room room = recordsCache.get(x);
+			final HotelRoom room = recordsCache.get(x);
 			dbFileAccess.getChannel().position((recordSize * x) + recordLength);
 
-			/*
-			 * Write a valid record flag
-			 */
 			dbFileAccess.write(new byte[2]);
 
 			for (int i = 0; i < numberOfFields; i++) {
@@ -122,33 +110,21 @@ public class DBFileIO {
 	}
 
 	/**
-	 * This method is used to get all the records from the .db file.
+	 * This method is used to read in all the records from the .db file.
 	 * 
 	 * @return CopyOnWriteArrayList This CopyOnWriteArrayList contains all the
 	 *         records as Room objects.
 	 * @throws IOException
 	 *             When there is a issue accessing the .db file.
 	 */
-	public CopyOnWriteArrayList<Room> getAllRecords() throws IOException {
-		final CopyOnWriteArrayList<Room> records = new CopyOnWriteArrayList<Room>();
+	public CopyOnWriteArrayList<HotelRoom> getAllRecords() throws IOException {
+		final CopyOnWriteArrayList<HotelRoom> records = new CopyOnWriteArrayList<HotelRoom>();
 		recordFileLocationsInBytes = new ArrayList<Long>();
 		DELETED_RECORD = "0xFF".getBytes();
 
-		/*
-		 * Creating a random access file stream to read and write to the
-		 * database file.
-		 */
-
 		dbFileAccess = new RandomAccessFile(DATABASE_LOCATION, "r");
 
-		/*
-		 * Read in the ints and shorts from the db file which corresponding to
-		 * the magic cookie, record length and number of fields per record.
-		 */
-
-		/*
-		 * Magic cookie value is not being used.
-		 */
+		// Magic cookie value is not used so no need for a local variable.
 		dbFileAccess.readInt();
 
 		numberOfFields = dbFileAccess.readShort();
@@ -156,62 +132,32 @@ public class DBFileIO {
 		fieldNames = new String[numberOfFields];
 		fieldLengths = new int[numberOfFields];
 
-		/*
-		 * At this point, the meta data of the db file has been obtained,
-		 * therefore the main point of this "for" loop is to get the name and
-		 * length (in bytes) of each field
-		 */
 		for (int i = 0; i < numberOfFields; i++) {
 
-			/*
-			 * One bytes (short) store the number of bytes that a field name
-			 * will consume. This is read into an int.
-			 */
 			final int nameLengthNumOfBytes = dbFileAccess.read();
 
-			/*
-			 * The int that was just read tells us how many bytes to read, we
-			 * read that many bytes & cast to a String. This gives us the name
-			 * of the field.
-			 */
 			final byte[] fieldNameByteArray = new byte[nameLengthNumOfBytes];
 			dbFileAccess.readFully(fieldNameByteArray);
 			fieldNames[i] = new String(fieldNameByteArray, ENCODING);
 
-			/*
-			 * We then read the number of bytes which will contain the field
-			 * value
-			 */
 			final byte[] fieldValueNumOfBytes = new byte[FIELD_LENGTH];
 			dbFileAccess.readFully(fieldValueNumOfBytes);
-			fieldLengths[i] = byteArrayToInt(fieldValueNumOfBytes);
+			fieldLengths[i] = convertByteArrayToInt(fieldValueNumOfBytes);
 		}
 
-		/*
-		 * The actual content of each record is read here. Room objects are
-		 * created as we go and added to a collection. The file is read until
-		 * EOF is reached.
-		 */
-
+		// Read data for HotelRooms from here.
 		while (true) {
 			int EndOfFile;
-			final Room room = new Room();
+			final HotelRoom room = new HotelRoom();
 
 			try {
 				EndOfFile = dbFileAccess.readByte();
 			} catch (final EOFException e) {
-				/*
-				 * A EOFException indicates that the end of file has been
-				 * reached, all records hence have been read so we break out of
-				 * the while loop.
-				 */
+				// Look for EOFException which tells us we have finished the
+				// read.
 				break;
 			}
 
-			/*
-			 * This collection is used to keep track of the location of records
-			 * in the file.
-			 */
 			recordFileLocationsInBytes.add(dbFileAccess.getFilePointer());
 
 			for (int i = 0; i < numberOfFields; i++) {
@@ -245,11 +191,7 @@ public class DBFileIO {
 				}
 			}
 
-			if (EndOfFile != byteArrayToInt(DELETED_RECORD)) {
-				/*
-				 * Only records not flagged as deleted, will be added to the
-				 * cache.
-				 */
+			if (EndOfFile != convertByteArrayToInt(DELETED_RECORD)) {
 				records.add(room);
 			}
 		}
@@ -266,15 +208,11 @@ public class DBFileIO {
 		return combined.getBytes();
 	}
 
-	private static void clearToEOF() throws IOException {
+	private static void clearDBFile() throws IOException {
 		dbFileAccess.setLength(recordFileLocationsInBytes.get(0));
 	}
 
-	/*
-	 * This method is used to convert a byte array to its corresponding int
-	 * value.
-	 */
-	private static int byteArrayToInt(final byte[] byteArray) {
+	private static int convertByteArrayToInt(final byte[] byteArray) {
 		int value = 0, i = 0;
 		final int totalByteLength = byteArray.length;
 
