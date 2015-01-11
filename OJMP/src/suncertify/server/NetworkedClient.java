@@ -5,7 +5,7 @@ import java.rmi.Naming;
 import javax.swing.SwingUtilities;
 
 import suncertify.controller.AppController;
-import suncertify.db.DBMainExtended;
+import suncertify.db.DBAccessExtended;
 import suncertify.model.AppModel;
 import suncertify.model.AppModelInterface;
 import suncertify.view.AppView;
@@ -19,7 +19,7 @@ import suncertify.view.AppView;
 public class NetworkedClient {
 
 	private DBMainRemote remoteDBAccess;
-	private DBMainExtended data;
+	private DBAccessExtended data;
 
 	/**
 	 * This is the constructor of the NetworkedClient class.

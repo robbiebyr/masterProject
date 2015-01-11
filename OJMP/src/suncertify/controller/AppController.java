@@ -11,6 +11,7 @@ import javax.swing.event.ListSelectionListener;
 
 import suncertify.db.RecordNotAvailableException;
 import suncertify.db.RecordNotFoundException;
+import suncertify.db.SecurityException;
 import suncertify.model.AppModelInterface;
 import suncertify.view.AppView;
 
@@ -30,7 +31,7 @@ public class AppController {
 	AppModelInterface model;
 	AppView view;
 	String owner = "";
-	int selectedRecord;
+	long selectedRecord;
 	String enterNumberMessage = "Please enter a 8 digit Customer ID";
 	String selectRoomMessage = "Please select a room to book from table";
 	int MAX_ID_DIGITS = 8;
@@ -43,7 +44,7 @@ public class AppController {
 	 * @param view
 	 *            This is the AppView.
 	 */
-	public AppController(AppModelInterface model, AppView view) {
+	public AppController(final AppModelInterface model, final AppView view) {
 		this.model = model;
 		this.view = view;
 
@@ -61,9 +62,9 @@ public class AppController {
 	class SearchButtonListener implements ActionListener {
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			String name = view.getNameField().getText();
-			String location = view.getLocationField().getText();
+		public void actionPerformed(final ActionEvent arg0) {
+			final String name = view.getNameField().getText();
+			final String location = view.getLocationField().getText();
 
 			if ((name + location).trim().equals("")) {
 				view.populateTableAllRecords();
@@ -91,7 +92,7 @@ public class AppController {
 	class BookButtonListener implements ActionListener {
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed(final ActionEvent arg0) {
 			owner = view.getCustIdField().getText();
 			selectedRecord = view.getTable().getSelectedRow();
 
@@ -101,13 +102,16 @@ public class AppController {
 			}
 
 			try {
-				model.updateRecord(selectedRecord, owner);
+				model.updateRecord(selectedRecord, owner, model.getCookie());
 				view.getNoteLabel().setText(selectRoomMessage);
 
-			} catch (RecordNotAvailableException e) {
+			} catch (final RecordNotAvailableException e) {
 				view.getNoteLabel().setText(e.getMessage());
 				view.update(null, null);
-			} catch (RecordNotFoundException e) {
+			} catch (final RecordNotFoundException e) {
+				view.getNoteLabel().setText(e.getMessage());
+				view.update(null, null);
+			} catch (final SecurityException e) {
 				view.getNoteLabel().setText(e.getMessage());
 				view.update(null, null);
 			}
@@ -123,20 +127,20 @@ public class AppController {
 	class custIDListener implements KeyListener {
 
 		@Override
-		public void keyReleased(KeyEvent e) {
-			JLabel noteLabel = view.getNoteLabel();
+		public void keyReleased(final KeyEvent e) {
+			final JLabel noteLabel = view.getNoteLabel();
 
 			noteLabel.setText("");
 
 			if (view.getCustIdField().getText().length() == MAX_ID_DIGITS) {
 				try {
-					int cust = Integer
-							.parseInt(view.getCustIdField().getText());
+					final int cust = Integer.parseInt(view.getCustIdField()
+							.getText());
 					noteLabel
 							.setText("Click \"Book\" to Reserve room for Customer: "
 									+ cust);
 					view.getBookButton().setEnabled(true);
-				} catch (NumberFormatException excep) {
+				} catch (final NumberFormatException excep) {
 					noteLabel.setText(enterNumberMessage);
 					view.getBookButton().setEnabled(false);
 				}
@@ -148,18 +152,18 @@ public class AppController {
 		}
 
 		@Override
-		public void keyPressed(KeyEvent e) {/* NOT REQUIRED */
+		public void keyPressed(final KeyEvent e) {/* NOT REQUIRED */
 		}
 
 		@Override
-		public void keyTyped(KeyEvent e) {/* NOT REQUIRED */
+		public void keyTyped(final KeyEvent e) {/* NOT REQUIRED */
 		}
 	}
 
 	class TableListener implements ListSelectionListener {
 
 		@Override
-		public void valueChanged(ListSelectionEvent event) {
+		public void valueChanged(final ListSelectionEvent event) {
 			if (view.getTable().getSelectedRow() > -1) {
 				view.getCustIdField().setEnabled(true);
 				view.getNoteLabel().setText(enterNumberMessage);

@@ -2,103 +2,114 @@ package suncertify.server;
 
 import java.rmi.RemoteException;
 
-import suncertify.db.DBMainExtended;
+import suncertify.db.DBAccessExtended;
 import suncertify.db.DuplicateKeyException;
 import suncertify.db.RecordNotFoundException;
+import suncertify.db.SecurityException;
 
 /**
- * This class is used as a wrapper around the DBMainRemote interface which is used for RMI.
+ * This class is used as a wrapper around the DBMainRemote interface which is
+ * used for RMI.
+ * 
  * @author Robbie Byrne
- *
+ * 
  */
-public class DataProxy implements DBMainExtended {
+public class DataProxy implements DBAccessExtended {
 
-	private DBMainRemote dataRemote;
+	private final DBMainRemote dataRemote;
+	private long cookie;
 
 	/**
 	 * Constructor for DataProxy takes the interface used for RMI .
-	 * @param remoteDBAccess Interface used for RMI
+	 * 
+	 * @param remoteDBAccess
+	 *            Interface used for RMI
 	 */
-	public DataProxy(DBMainRemote remoteDBAccess) {
+	public DataProxy(final DBMainRemote remoteDBAccess) {
 		dataRemote = remoteDBAccess;
 	}
 
 	@Override
-	public String[] read(int recNo) throws RecordNotFoundException {
+	public String[] readRecord(final long recNo) throws RecordNotFoundException {
 		String[] result = null;
 		try {
-			result = dataRemote.read(recNo);
-		} catch (RemoteException e) {
+			result = dataRemote.readRecord(recNo);
+		} catch (final RemoteException e) {
 			throw new NewRuntimeException();
 		}
 		return result;
 	}
 
 	@Override
-	public void update(int recNo, String[] data) throws RecordNotFoundException {
+	public void updateRecord(final long recNo, final String[] data,
+			final long cookie) throws RecordNotFoundException,
+			SecurityException {
 		try {
-			dataRemote.update(recNo, data);
-		} catch (RemoteException e) {
+			dataRemote.updateRecord(recNo, data, cookie);
+		} catch (final RemoteException e) {
 			throw new NewRuntimeException();
 		}
 	}
 
 	@Override
-	public void delete(int recNo) throws RecordNotFoundException {
+	public void deleteRecord(final long recNo, final long cookie)
+			throws RecordNotFoundException {
 		try {
-			dataRemote.delete(recNo);
-		} catch (RemoteException e) {
+			dataRemote.deleteRecord(recNo, cookie);
+		} catch (final RemoteException e) {
 			throw new NewRuntimeException();
 		}
 
 	}
 
 	@Override
-	public int[] find(String[] criteria) throws RecordNotFoundException {
-		int[] result;
+	public long[] findByCriteria(final String[] criteria) {
+		long[] result;
 		try {
-			result = dataRemote.find(criteria);
-		} catch (RemoteException e) {
-			throw new NewRuntimeException();
-		}
-		return result;
-	}
-
-	@Override
-	public int create(String[] data) throws DuplicateKeyException {
-		int result;
-		try {
-			result = dataRemote.create(data);
-		} catch (RemoteException e) {
+			result = dataRemote.findByCriteria(criteria);
+		} catch (final RemoteException e) {
 			throw new NewRuntimeException();
 		}
 		return result;
 	}
 
 	@Override
-	public void lock(int recNo) throws RecordNotFoundException {
+	public long createRecord(final String[] data) throws DuplicateKeyException {
+		long result;
 		try {
-			dataRemote.lock(recNo);
-		} catch (RemoteException e) {
+			result = dataRemote.createRecord(data);
+		} catch (final RemoteException e) {
+			throw new NewRuntimeException();
+		}
+		return result;
+	}
+
+	@Override
+	public long lockRecord(final long recNo) throws RecordNotFoundException {
+		try {
+			cookie = dataRemote.lockRecord(recNo);
+		} catch (final RemoteException e) {
+			throw new NewRuntimeException();
+		}
+		return cookie;
+	}
+
+	@Override
+	public void unlock(final long recNo, final long cookie)
+			throws SecurityException {
+		try {
+			dataRemote.unlock(recNo, cookie);
+		} catch (final RemoteException e) {
 			throw new NewRuntimeException();
 		}
 	}
 
 	@Override
-	public void unlock(int recNo) throws RecordNotFoundException {
-		try {
-			dataRemote.lock(recNo);
-		} catch (RemoteException e) {
-			throw new NewRuntimeException();
-		}
-	}
-
-	@Override
-	public boolean isLocked(int recNo) throws RecordNotFoundException {
+	public boolean isLocked(final long recNo) throws RecordNotFoundException {
 		boolean result;
 		try {
 			result = dataRemote.isLocked(recNo);
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 			throw new NewRuntimeException();
 		}
 		return result;
@@ -108,8 +119,13 @@ public class DataProxy implements DBMainExtended {
 	public String[] getFields() {
 		try {
 			return dataRemote.getFields();
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 			throw new NewRuntimeException();
 		}
+	}
+
+	@Override
+	public long getCookie() {
+		return cookie;
 	}
 }

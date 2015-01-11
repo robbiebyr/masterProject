@@ -8,10 +8,11 @@ import java.util.Observable;
 import java.util.Observer;
 
 import suncertify.common.LostConnectionDialog;
-import suncertify.db.DBMainExtended;
+import suncertify.db.DBAccessExtended;
 import suncertify.db.DuplicateKeyException;
 import suncertify.db.RecordNotAvailableException;
 import suncertify.db.RecordNotFoundException;
+import suncertify.db.SecurityException;
 import suncertify.server.NewRuntimeException;
 
 /**
@@ -23,10 +24,10 @@ import suncertify.server.NewRuntimeException;
  */
 public class AppModel extends Observable implements AppModelInterface {
 
-	private DBMainExtended data;
-	private Map<Integer, Integer> actualIndexMap;
-	private int numOfFeilds = 7;
-	private int ownerIndex = numOfFeilds - 1;
+	private final DBAccessExtended data;
+	private Map<Integer, Long> actualIndexMap;
+	private final int numOfFeilds = 7;
+	private final int ownerIndex = numOfFeilds - 1;
 	private int totalRecords;
 
 	private static List<Observer> observers = new ArrayList<Observer>();
@@ -38,28 +39,26 @@ public class AppModel extends Observable implements AppModelInterface {
 	 * @param dbAccess
 	 *            implementation of the DBMainExtended interface.
 	 */
-	public AppModel(DBMainExtended dbAccess) {
+	public AppModel(final DBAccessExtended dbAccess) {
 		data = dbAccess;
 	}
 
 	@Override
 	public List<Room> getAllRecords() {
-		List<Room> temp = getAllRecordsFromCache();
+		final List<Room> temp = getAllRecordsFromCache();
 		totalRecords = temp.size();
 		return temp;
 	}
 
 	@Override
-	public Map<Integer, Room> queryRecords(String name, String location) {
-		String[] criteria = new String[numOfFeilds];
+	public Map<Integer, Room> queryRecords(final String name,
+			final String location) {
+		final String[] criteria = new String[numOfFeilds];
 		criteria[0] = name;
 		criteria[1] = location;
-		int recordNums[] = null;
-		try {
-			recordNums = data.find(criteria);
-		} catch (RecordNotFoundException e) {
-			recordNums = null;
-		}
+		long recordNums[] = null;
+
+		recordNums = data.findByCriteria(criteria);
 
 		return getMultipleRecords(recordNums);
 	}
@@ -70,14 +69,15 @@ public class AppModel extends Observable implements AppModelInterface {
 	}
 
 	@Override
-	public void updateRecord(int recNo, String owner)
-			throws RecordNotFoundException, RecordNotAvailableException {
+	public void updateRecord(final long recNo, final String owner,
+			final long cookie) throws RecordNotFoundException,
+			RecordNotAvailableException, SecurityException {
 
 		if (!alreadyBooked(recNo)) {
-			String[] record = new String[numOfFeilds];
+			final String[] record = new String[numOfFeilds];
 			record[ownerIndex] = owner;
 
-			data.update(recNo, record);
+			data.updateRecord(recNo, record, cookie);
 			fireNotification();
 		} else {
 			throw new RecordNotAvailableException(
@@ -94,30 +94,30 @@ public class AppModel extends Observable implements AppModelInterface {
 	 * @throws DuplicateKeyException
 	 *             Exception can't be thrown due to Cache implementation.
 	 */
-	public int create(Room room) throws DuplicateKeyException {
-		return data.create(room.toStrArray());
+	public long create(final Room room) throws DuplicateKeyException {
+		return data.createRecord(room.toStrArray());
 	}
 
 	@Override
-	public void addObserver(Observer observer) {
+	public void addObserver(final Observer observer) {
 		if (!observers.contains(observer)) {
 			observers.add(observer);
 		}
 	}
 
 	@Override
-	public void removeObserver(Observer observer) {
+	public void removeObserver(final Observer observer) {
 		observers.remove(observer);
 	}
 
 	protected void fireNotification() {
-		for (Observer observer : observers) {
+		for (final Observer observer : observers) {
 			observer.update(this, new Object());
 		}
 	}
 
 	@Override
-	public Integer getActualIndexMap(int selection) {
+	public Long getActualIndexMap(final long selection) {
 		return actualIndexMap.get(selection);
 	}
 
@@ -126,19 +126,19 @@ public class AppModel extends Observable implements AppModelInterface {
 		return totalRecords;
 	}
 
-	private Map<Integer, Room> getMultipleRecords(int[] recNumbers) {
-		Map<Integer, Room> temp = new LinkedHashMap<Integer, Room>();
+	private Map<Integer, Room> getMultipleRecords(final long[] recNumbers) {
+		final Map<Integer, Room> temp = new LinkedHashMap<Integer, Room>();
 
 		if (recNumbers == null) {
 			return temp;
 		} else {
-			actualIndexMap = new LinkedHashMap<Integer, Integer>();
+			actualIndexMap = new LinkedHashMap<Integer, Long>();
 
 			for (int i = 0; i < recNumbers.length; i++) {
 				Room room = null;
 				try {
-					room = Room.strToRoom(data.read(recNumbers[i]));
-				} catch (RecordNotFoundException e) {
+					room = Room.strToRoom(data.readRecord(recNumbers[i]));
+				} catch (final RecordNotFoundException e) {
 					/*
 					 * Record numbers were just obtained from Cache so should
 					 * exist.
@@ -152,17 +152,17 @@ public class AppModel extends Observable implements AppModelInterface {
 	}
 
 	private List<Room> getAllRecordsFromCache() {
-		List<Room> records = new ArrayList<Room>(10);
+		final List<Room> records = new ArrayList<Room>(10);
 		int recNo = 0;
 		while (true) {
 			try {
-				Room room = Room.strToRoom(data.read(recNo));
+				final Room room = Room.strToRoom(data.readRecord(recNo));
 				records.add(room);
 				recNo++;
-			} catch (NewRuntimeException e) {
-				LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
+			} catch (final NewRuntimeException e) {
+				final LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
 				lostConnectionDialog.processResponce();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				/*
 				 * All records from Cache have been read.
 				 */
@@ -172,13 +172,14 @@ public class AppModel extends Observable implements AppModelInterface {
 		return records;
 	}
 
-	private boolean alreadyBooked(int recNo) throws RecordNotFoundException {
+	private boolean alreadyBooked(final long recNo)
+			throws RecordNotFoundException {
 		boolean result = true;
 		String[] record = null;
 		try {
-			record = data.read(recNo);
-		} catch (NewRuntimeException e) {
-			LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
+			record = data.readRecord(recNo);
+		} catch (final NewRuntimeException e) {
+			final LostConnectionDialog lostConnectionDialog = new LostConnectionDialog();
 			lostConnectionDialog.processResponce();
 		}
 
@@ -186,5 +187,10 @@ public class AppModel extends Observable implements AppModelInterface {
 			result = false;
 		}
 		return result;
+	}
+
+	@Override
+	public long getCookie() {
+		return data.getCookie();
 	}
 }

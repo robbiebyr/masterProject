@@ -7,36 +7,42 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import suncertify.db.DBCache;
+import suncertify.db.DBFileIO;
 import suncertify.db.DatabaseFailureException;
 import suncertify.db.DuplicateKeyException;
 import suncertify.db.LockingManager;
-import suncertify.db.DBFileIO;
 import suncertify.db.RecordNotFoundException;
+import suncertify.db.SecurityException;
 import suncertify.model.Room;
-
 
 /**
  * This class is used by the client to send requests to the server over RMI.
+ * 
  * @author Robbie Byrne
- *
+ * 
  */
-public class DataRemote extends UnicastRemoteObject implements
-		DBMainRemote {
-	
+public class DataRemote extends UnicastRemoteObject implements DBMainRemote {
+
 	private static final long serialVersionUID = -8113387190165778794L;
-	private DBFileIO dao;
-	private DBCache cache;
-	private LockingManager lockingManager;
-	private int ownerIndex = 6;
+	private final DBFileIO dao;
+	private final DBCache cache;
+	private final LockingManager lockingManager;
+	private final int ownerIndex = 6;
 	private Long clientId;
+	private long cookie;
 
 	/**
-	 * The constructor for the DataRemote class takes a db file location as its only input.
-	 * @param dbLocation Db file location as a String
-	 * @throws RemoteException Thrown if there is a client-server network issue.
-	 * @throws DatabaseFailureException This is thrown if there is an issue accessing the db file.
+	 * The constructor for the DataRemote class takes a db file location as its
+	 * only input.
+	 * 
+	 * @param dbLocation
+	 *            Db file location as a String
+	 * @throws RemoteException
+	 *             Thrown if there is a client-server network issue.
+	 * @throws DatabaseFailureException
+	 *             This is thrown if there is an issue accessing the db file.
 	 */
-	public DataRemote(String dbLocation) throws RemoteException,
+	public DataRemote(final String dbLocation) throws RemoteException,
 			DatabaseFailureException {
 		CopyOnWriteArrayList<Room> records;
 		String[] fields;
@@ -46,7 +52,7 @@ public class DataRemote extends UnicastRemoteObject implements
 			records = dao.getAllRecords();
 			fields = dao.getFieldNames();
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new DatabaseFailureException("Can't find/read db file");
 		}
 
@@ -54,87 +60,97 @@ public class DataRemote extends UnicastRemoteObject implements
 		lockingManager = new LockingManager();
 	}
 
+	@Override
 	public List<Room> getAllRecords() {
 		return cache.getAllRecords();
 	}
 
+	@Override
 	public String[] getFields() {
 		return cache.getFieldNames();
 	}
 
 	@Override
-	public String[] read(int recNo) throws RecordNotFoundException,
-			RemoteException {
+	public String[] readRecord(final long recNo)
+			throws RecordNotFoundException, RemoteException {
 		return cache.readRecord(recNo).toStrArray();
 	}
 
 	@Override
-	public void update(int recNo, String[] data)
-			throws RecordNotFoundException, RemoteException {
-		lock(recNo);
+	public void updateRecord(final long recNo, final String[] data,
+			final long lockCookie) throws RecordNotFoundException,
+			RemoteException, SecurityException {
+		cookie = lockRecord(recNo);
 		cache.updateRecord(recNo, data[ownerIndex]);
-		unlock(recNo);
+		if (cookie == lockCookie) {
+			unlock(recNo, lockCookie);
+		} else {
+			throw new SecurityException("Incorrect cookie to unlock record");
+		}
 	}
 
 	@Override
-	public void delete(int recNo) throws RecordNotFoundException,
-			RemoteException {
+	public void deleteRecord(final long recNo, final long cookie)
+			throws RecordNotFoundException, RemoteException {
 		cache.deleteRecord(recNo);
 	}
 
 	@Override
-	public int[] find(String[] criteria) throws RecordNotFoundException,
-			RemoteException {
+	public long[] findByCriteria(final String[] criteria)
+			throws RemoteException {
 		return cache.find(criteria);
 	}
 
 	@Override
-	public int create(String[] data) throws DuplicateKeyException,
+	public long createRecord(final String[] data) throws DuplicateKeyException,
 			RemoteException {
 		return cache.addRecord(Room.strToRoom(data));
 	}
 
 	@Override
-	public void lock(int recNo) throws RecordNotFoundException, RemoteException
-	{	
-		if(cache.containsRecord(recNo))
-		{
-			Long clientId = lockingManager.lock(recNo);
+	public long lockRecord(final long recNo) throws RecordNotFoundException,
+			RemoteException {
+		if (cache.containsRecord(recNo)) {
+			final Long clientId = lockingManager.lock(recNo);
 			setClientId(clientId);
-		}
-		else
-		{
+		} else {
 			throw new RecordNotFoundException();
 		}
+		return clientId;
 	}
 
 	@Override
-	public void unlock(int recNo) throws RecordNotFoundException, RemoteException {
-		if (cache.containsRecord(recNo))
-		{
-			lockingManager.unlock(recNo, getClientId());	
+	public void unlock(final long recNo, final long cookie)
+			throws RemoteException, SecurityException {
+		if (cache.containsRecord(recNo)) {
+			lockingManager.unlock(recNo, getClientId());
 			setClientId(null);
 		}
 	}
 
 	@Override
-	public boolean isLocked(int recNo) throws RecordNotFoundException, RemoteException {
+	public boolean isLocked(final long recNo) throws RecordNotFoundException,
+			RemoteException {
 		return lockingManager.isLocked(recNo);
 	}
-	
-	public boolean alreadyBooked(int recNo) throws RecordNotFoundException, RemoteException
-	{
-		String [] room = read(recNo);
+
+	public boolean alreadyBooked(final int recNo)
+			throws RecordNotFoundException, RemoteException {
+		final String[] room = readRecord(recNo);
 		return room[ownerIndex].trim().length() > 0;
 	}
-	
-	private void setClientId(Long clientId)
-	{
+
+	private void setClientId(final Long clientId) {
 		this.clientId = clientId;
 	}
-	
-	private Long getClientId()
-	{
+
+	private Long getClientId() {
 		return this.clientId;
+	}
+
+	@Override
+	public boolean alreadyBooked(final long recNo)
+			throws RecordNotFoundException, RemoteException {
+		return lockingManager.isLocked(recNo);
 	}
 }

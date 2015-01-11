@@ -24,7 +24,7 @@ public class MenuBar extends JMenuBar{
 	public MenuBar()
 	{
 		JMenu file = new JMenu("File");
-		JMenu help = new JMenu("Help");
+//		JMenu help = new JMenu("Help");
 		
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
 		JMenuItem helpMenuItem = new JMenuItem("Search & Book a Record Step by Step");
@@ -57,10 +57,10 @@ public class MenuBar extends JMenuBar{
         });
 		
 		file.add(exitMenuItem);
-		help.add(helpMenuItem);
+//		help.add(helpMenuItem);
 		
 		this.add(file);
-		this.add(help);
+//		this.add(help);
 		this.setVisible(true);
 	}
 }

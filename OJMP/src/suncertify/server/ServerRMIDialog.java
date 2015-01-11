@@ -18,75 +18,76 @@ import suncertify.common.PropertiesFileAccess;
 
 /**
  * ServerRMIDialog is used to obtain server settings from end user.
+ * 
  * @author Robbie Byrne
- *
+ * 
  */
 public class ServerRMIDialog extends JFrame {
 
 	private static final long serialVersionUID = 7123856555620056822L;
 
-	private String dbLocation = "db-1x2.db";
+	private String dbLocation = "db-1x3.db";
 	private String hostname = "localhost";
 	private String port = "1099";
 
-	private JPanel parentPanel = new JPanel();	
-	private JPanel inputPanel = new JPanel();
-	private JPanel labelsPanel = new JPanel();
+	private final JPanel parentPanel = new JPanel();
+	private final JPanel inputPanel = new JPanel();
+	private final JPanel labelsPanel = new JPanel();
 
-	private JTextField dbLocationFeild = new JTextField();
-	private JTextField portFeild = new JTextField();
-	private JTextField hostnameFeild = new JTextField();
+	private final JTextField dbLocationFeild = new JTextField();
+	private final JTextField portFeild = new JTextField();
+	private final JTextField hostnameFeild = new JTextField();
 
-	private JLabel dbLocationLabel = new JLabel("DB Location");
-	private JLabel portLabel = new JLabel("Port");
-	private JLabel hostnameLabel = new JLabel("Hostname");
-	
-	private JButton startButton = new JButton("START");
-	private JButton stopButton = new JButton("STOP");
-	
-	private JLabel messageLabel = new JLabel("");
-	private String OFFLINE = "Server offline.";
-	
-	private Border grayBorder = BorderFactory.createLineBorder(Color.gray);
-	
-	private JFrame masterFrame = new JFrame();
-	
-	private Dimension msgLabelSize = new Dimension(250, 20);
-	private Dimension labelsSize = new Dimension(120, 20);
-	
+	private final JLabel dbLocationLabel = new JLabel("DB Location");
+	private final JLabel portLabel = new JLabel("Port");
+	private final JLabel hostnameLabel = new JLabel("Hostname");
+
+	private final JButton startButton = new JButton("START");
+	private final JButton stopButton = new JButton("STOP");
+
+	private final JLabel messageLabel = new JLabel("");
+	private final String OFFLINE = "Server offline.";
+
+	private final Border grayBorder = BorderFactory
+			.createLineBorder(Color.gray);
+
+	private final JFrame masterFrame = new JFrame();
+
+	private final Dimension msgLabelSize = new Dimension(250, 20);
+	private final Dimension labelsSize = new Dimension(120, 20);
+
 	boolean result = false;
-	
+
 	/**
 	 * No argument constructor of ServerRMIDialog
 	 */
-	public ServerRMIDialog()
-	{
+	public ServerRMIDialog() {
 		reset();
-		
+
 		masterFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		masterFrame.setTitle("Please enter server details:");
 		masterFrame.setSize(280, 155);
 		masterFrame.setResizable(false);
 		masterFrame.setLocationRelativeTo(null);
-		
+
 		messageLabel.setBorder(grayBorder);
 		messageLabel.setMinimumSize(msgLabelSize);
 		messageLabel.setPreferredSize(msgLabelSize);
 		messageLabel.setMaximumSize(msgLabelSize);
 		messageLabel.setText(OFFLINE);
-		
+
 		startButton.setEnabled(true);
 		stopButton.setEnabled(false);
-		
+
 		stopButton.addActionListener(new ActionListener() {
-			 
-            public void actionPerformed(ActionEvent e)
-            {
-            	reset();
-            	System.exit(0);
-            }
-        });      
-		
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				reset();
+				System.exit(0);
+			}
+		});
+
 		inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.PAGE_AXIS));
 		labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.PAGE_AXIS));
 
@@ -114,58 +115,59 @@ public class ServerRMIDialog extends JFrame {
 		parentPanel.add(messageLabel);
 
 		masterFrame.add(parentPanel);
-		masterFrame.setVisible(true);	
+		masterFrame.setVisible(true);
 	}
-	
+
 	/**
-	 * Settings which were entered by the user are written to the properties file.
+	 * Settings which were entered by the user are written to the properties
+	 * file.
 	 */
-	public void writeSettingsToPropertiesFile()
-	{
-    	startButton.setEnabled(false);
-    	stopButton.setEnabled(true);
-    	dbLocationFeild.setEnabled(false);
-    	hostnameFeild.setEnabled(false);
-    	portFeild.setEnabled(false);
-    	
-    	dbLocation = dbLocationFeild.getText();
+	public void writeSettingsToPropertiesFile() {
+		startButton.setEnabled(false);
+		stopButton.setEnabled(true);
+		dbLocationFeild.setEnabled(false);
+		hostnameFeild.setEnabled(false);
+		portFeild.setEnabled(false);
+
+		dbLocation = dbLocationFeild.getText();
 		port = portFeild.getText();
 		hostname = hostnameFeild.getText();
-		
+
 		writePropertiesToFile();
 	}
-	
+
 	/**
 	 * Updates the message label on the ServerRMIDialog GUI.
-	 * @param message Message to set.
+	 * 
+	 * @param message
+	 *            Message to set.
 	 */
-	public void setMessageLabel(String message)
-	{
+	public void setMessageLabel(final String message) {
 		messageLabel.setText(message);
 	}
-	
+
 	/**
 	 * Adds a ActionListener to the start button of the ServerRMIDialog GUI.
-	 * @param buttonListener ActionListener.
+	 * 
+	 * @param buttonListener
+	 *            ActionListener.
 	 */
-	public void addStartButtonListener(ActionListener buttonListener) {
+	public void addStartButtonListener(final ActionListener buttonListener) {
 		startButton.addActionListener(buttonListener);
 	}
-	
-	private void writePropertiesToFile()
-	{
+
+	private void writePropertiesToFile() {
 		PropertiesFileAccess.setDbLocation(dbLocation);
 		PropertiesFileAccess.setPort(port);
 		PropertiesFileAccess.setHostname(hostname);
 	}
-	
-	private void reset()
-	{	
+
+	private void reset() {
 		stopButton.setEnabled(false);
-    	startButton.setEnabled(true);
-    	dbLocationFeild.setEnabled(true);
-    	hostnameFeild.setEnabled(true);
-    	portFeild.setEnabled(true);
-    	messageLabel.setText(OFFLINE);
+		startButton.setEnabled(true);
+		dbLocationFeild.setEnabled(true);
+		hostnameFeild.setEnabled(true);
+		portFeild.setEnabled(true);
+		messageLabel.setText(OFFLINE);
 	}
 }

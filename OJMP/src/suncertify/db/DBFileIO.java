@@ -9,18 +9,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import suncertify.model.Room;
 
 /**
- * This class is used to read the provided db file and to write the Cache to file.
+ * This class is used to read the provided db file and to write the Cache to
+ * file.
+ * 
  * @author Robbie Byrne
- *
+ * 
  */
 public class DBFileIO {
 
-	private static final int FIELD_LENGTH = 2;
-	private static final int RECORD_FLAG = 2;
+	private static final int FIELD_LENGTH = 1;
+	private static final int RECORD_FLAG = 1;
 	private static String DATABASE_LOCATION = "";
 	private static final String ENCODING = "US-ASCII";
 	private static RandomAccessFile dbFileAccess;
-	private static int recordLength;
 	private static int numberOfFields;
 	private static String[] fieldNames;
 	private static int[] fieldLengths;
@@ -32,10 +33,12 @@ public class DBFileIO {
 	 * This is the constructor which take a String value representing the
 	 * database location.
 	 * 
-	 * @param location String representing the location of the db file.
-	 * @throws DatabaseFailureException This is thrown if there is an issue accessing the db file.
+	 * @param location
+	 *            String representing the location of the db file.
+	 * @throws DatabaseFailureException
+	 *             This is thrown if there is an issue accessing the db file.
 	 */
-	public DBFileIO(String location) throws DatabaseFailureException {
+	public DBFileIO(final String location) throws DatabaseFailureException {
 		DATABASE_LOCATION = location;
 	}
 
@@ -47,41 +50,45 @@ public class DBFileIO {
 	}
 
 	/**
-	 * This method is used to write the Cache of the application to file. 
-	 * @param recordsCache This is a CopyOnWriteArrayList collection with all elements of type Room. 
-	 * @throws IOException is thrown when there is an issue writing to the file.
+	 * This method is used to write the Cache of the application to file.
+	 * 
+	 * @param recordsCache
+	 *            This is a CopyOnWriteArrayList collection with all elements of
+	 *            type Room.
+	 * @throws IOException
+	 *             is thrown when there is an issue writing to the file.
 	 */
-	public static void writeAllRecordsToFile(CopyOnWriteArrayList<Room> recordsCache)
-			throws IOException {
+	public static void writeAllRecordsToFile(
+			final CopyOnWriteArrayList<Room> recordsCache) throws IOException {
 		dbFileAccess = new RandomAccessFile(DATABASE_LOCATION, "rw");
-		
+
 		/*
 		 * Clear all records from file.
 		 */
 		clearToEOF();
-		
+
 		/*
-		 * Using the offset in bytes between the start of the first record and the start of the second record,
-		 * I determine the value I can use to skip to the start of any record. This should be scalable beyond 
-		 * the amount of records currently in the file.
+		 * Using the offset in bytes between the start of the first record and
+		 * the start of the second record, I determine the value I can use to
+		 * skip to the start of any record. This should be scalable beyond the
+		 * amount of records currently in the file.
 		 */
-		long recordSize = recordFileLocationsInBytes.get(1) - recordFileLocationsInBytes.get(0);
-		
-		for (int x = 0; x < recordsCache.size(); x++)
-		{
-			Room room = recordsCache.get(x);
-			dbFileAccess.getChannel().position((recordSize * x) + recordLength);
-			
+		final long recordSize = recordFileLocationsInBytes.get(1)
+				- recordFileLocationsInBytes.get(0);
+
+		for (int x = 0; x < recordsCache.size(); x++) {
+			final Room room = recordsCache.get(x);
+			dbFileAccess.getChannel().position((recordSize * x));
+
 			/*
 			 * Write a valid record flag
 			 */
 			dbFileAccess.write(new byte[2]);
-			
-			for (int i = 0; i < numberOfFields; i++) 
-			{
+
+			for (int i = 0; i < numberOfFields; i++) {
 				byte[] buffer = new byte[fieldLengths[i]];
 				String temp = "";
-	
+
 				switch (i) {
 				case 0:
 					temp = room.getName();
@@ -105,14 +112,14 @@ public class DBFileIO {
 					temp = room.getOwner();
 					break;
 				}
-				
+
 				buffer = addPadding(temp, fieldLengths[i]);
 				dbFileAccess.write(buffer);
 			}
 		}
 		dbFileAccess.close();
 	}
-	
+
 	/**
 	 * This method is used to get all the records from the .db file.
 	 * 
@@ -122,9 +129,9 @@ public class DBFileIO {
 	 *             When there is a issue accessing the .db file.
 	 */
 	public CopyOnWriteArrayList<Room> getAllRecords() throws IOException {
-		CopyOnWriteArrayList<Room> records = new CopyOnWriteArrayList<Room>();
+		final CopyOnWriteArrayList<Room> records = new CopyOnWriteArrayList<Room>();
 		recordFileLocationsInBytes = new ArrayList<Long>();
-		DELETED_RECORD = "0x8000".getBytes();
+		DELETED_RECORD = "0xFF".getBytes();
 
 		/*
 		 * Creating a random access file stream to read and write to the
@@ -142,8 +149,7 @@ public class DBFileIO {
 		 * Magic cookie value is not being used.
 		 */
 		dbFileAccess.readInt();
-		
-		recordLength = dbFileAccess.readInt();
+
 		numberOfFields = dbFileAccess.readShort();
 
 		fieldNames = new String[numberOfFields];
@@ -157,17 +163,17 @@ public class DBFileIO {
 		for (int i = 0; i < numberOfFields; i++) {
 
 			/*
-			 * Two bytes (short) store the number of bytes that a field name
-			 * will consume. This is read into an int.
+			 * One bytes store the number of bytes that a field name will
+			 * consume. This is read into an int.
 			 */
-			int nameLengthNumOfBytes = dbFileAccess.readShort();
+			final int nameLengthNumOfBytes = dbFileAccess.readUnsignedByte();
 
 			/*
 			 * The int that was just read tells us how many bytes to read, we
 			 * read that many bytes & cast to a String. This gives us the name
 			 * of the field.
 			 */
-			byte[] fieldNameByteArray = new byte[nameLengthNumOfBytes];
+			final byte[] fieldNameByteArray = new byte[nameLengthNumOfBytes];
 			dbFileAccess.readFully(fieldNameByteArray);
 			fieldNames[i] = new String(fieldNameByteArray, ENCODING);
 
@@ -175,7 +181,7 @@ public class DBFileIO {
 			 * We then read the number of bytes which will contain the field
 			 * value
 			 */
-			byte[] fieldValueNumOfBytes = new byte[FIELD_LENGTH];
+			final byte[] fieldValueNumOfBytes = new byte[FIELD_LENGTH];
 			dbFileAccess.readFully(fieldValueNumOfBytes);
 			fieldLengths[i] = byteArrayToInt(fieldValueNumOfBytes);
 		}
@@ -188,11 +194,11 @@ public class DBFileIO {
 
 		while (true) {
 			int EndOfFile;
-			Room room = new Room();
+			final Room room = new Room();
 
 			try {
-				EndOfFile = dbFileAccess.readShort();
-			} catch (EOFException e) {
+				EndOfFile = dbFileAccess.read();
+			} catch (final EOFException e) {
 				/*
 				 * A EOFException indicates that the end of file has been
 				 * reached, all records hence have been read so we break out of
@@ -202,7 +208,8 @@ public class DBFileIO {
 			}
 
 			/*
-			 * This collection is used to keep track of the location of records in the file.
+			 * This collection is used to keep track of the location of records
+			 * in the file.
 			 */
 			recordFileLocationsInBytes.add(dbFileAccess.getFilePointer());
 
@@ -210,7 +217,7 @@ public class DBFileIO {
 				final byte[] buffer = new byte[fieldLengths[i]];
 
 				dbFileAccess.read(buffer);
-				String data = new String(buffer, ENCODING);
+				final String data = new String(buffer, ENCODING);
 
 				switch (i) {
 				case 0:
@@ -236,11 +243,11 @@ public class DBFileIO {
 					break;
 				}
 			}
-			
-			if (EndOfFile != byteArrayToInt(DELETED_RECORD))
-			{
+
+			if (EndOfFile != byteArrayToInt(DELETED_RECORD)) {
 				/*
-				 * Only records not flagged as deleted, will be added to the cache.
+				 * Only records not flagged as deleted, will be added to the
+				 * cache.
 				 */
 				records.add(room);
 			}
@@ -248,33 +255,34 @@ public class DBFileIO {
 		return records;
 	}
 
-	private static byte[] addPadding(String currentField, int requiredSize)
-	{
-		char[] paddingChar = new char[requiredSize - currentField.length()];
-		String padding = new String(paddingChar);
-		
-		String combined = currentField + padding;
+	private static byte[] addPadding(final String currentField,
+			final int requiredSize) {
+		final char[] paddingChar = new char[requiredSize
+				- currentField.length()];
+		final String padding = new String(paddingChar);
+
+		final String combined = currentField + padding;
 		return combined.getBytes();
 	}
-	
-	private static void clearToEOF() throws IOException
-	{
+
+	private static void clearToEOF() throws IOException {
 		dbFileAccess.setLength(recordFileLocationsInBytes.get(0));
 	}
-	
+
 	/*
-	 * This method is used to convert a byte array to its corresponding int value.
+	 * This method is used to convert a byte array to its corresponding int
+	 * value.
 	 */
-	private static int byteArrayToInt(byte[] byteArray) {
+	private static int byteArrayToInt(final byte[] byteArray) {
 		int value = 0, i = 0;
-		int totalByteLength = byteArray.length;
-		
+		final int totalByteLength = byteArray.length;
+
 		while (i < totalByteLength) {
-			int shift = (totalByteLength - 1 - i) * 8;
+			final int shift = (totalByteLength - 1 - i) * 8;
 			value += (byteArray[i] & 0x000000FF) << shift;
 			i++;
 		}
-		
+
 		return value;
 	}
 }
