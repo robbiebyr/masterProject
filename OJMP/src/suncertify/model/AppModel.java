@@ -30,7 +30,7 @@ public class AppModel extends Observable implements IAppModel {
 	private final int ownerIndex = numOfFeilds - 1;
 	private int totalRecords;
 
-	private static List<Observer> observers = new ArrayList<Observer>();
+	private static List<Observer> observers = new ArrayList<>();
 
 	/**
 	 * This constructor takes an implementation of the DBAccessExtended
@@ -126,12 +126,12 @@ public class AppModel extends Observable implements IAppModel {
 	}
 
 	private Map<Integer, HotelRoom> getMultipleRecords(final long[] recNumbers) {
-		final Map<Integer, HotelRoom> temp = new LinkedHashMap<Integer, HotelRoom>();
+		final Map<Integer, HotelRoom> temp = new LinkedHashMap<>();
 
 		if (recNumbers == null) {
 			return temp;
 		} else {
-			actualIndexMap = new LinkedHashMap<Integer, Long>();
+			actualIndexMap = new LinkedHashMap<>();
 
 			for (int i = 0; i < recNumbers.length; i++) {
 				HotelRoom room = null;
@@ -147,7 +147,7 @@ public class AppModel extends Observable implements IAppModel {
 	}
 
 	private List<HotelRoom> getAllRecordsFromCache() {
-		final List<HotelRoom> records = new ArrayList<HotelRoom>(10);
+		final List<HotelRoom> records = new ArrayList<>(10);
 		int recNo = 0;
 		while (true) {
 			try {

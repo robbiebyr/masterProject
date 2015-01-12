@@ -62,7 +62,8 @@ public class Data implements DBAccessExtended {
 		if (cookie == lockCookie) {
 			unlock(recNo, lockCookie);
 		} else {
-			throw new SecurityException("Incorrect cookie to unlock record");
+			throw new SecurityException(
+					"Incorrect cookie to unlock and update record");
 		}
 	}
 
@@ -74,7 +75,8 @@ public class Data implements DBAccessExtended {
 		if (cookie == lockCookie) {
 			unlock(recNo, lockCookie);
 		} else {
-			throw new SecurityException("Incorrect cookie to unlock record");
+			throw new SecurityException(
+					"Incorrect cookie to unlock and delete record");
 		}
 	}
 

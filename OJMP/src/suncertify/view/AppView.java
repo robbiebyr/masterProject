@@ -47,7 +47,7 @@ public class AppView extends JFrame implements Observer {
 
 	private static final long serialVersionUID = -3394046902872034481L;
 	private JLabel spacer, noteLabel;
-	private final JButton bookButton = new JButton("Book");
+	private final JButton bookButton = new JButton("Book Room");
 	private final JButton searchButton = new JButton("Search");
 	private final Border greyBorder = BorderFactory
 			.createLineBorder(Color.GRAY);
@@ -59,6 +59,7 @@ public class AppView extends JFrame implements Observer {
 	private final JTextField custId = new JTextField();
 	private JTextField nameField, locationField, custIdTextField;
 	private final Color grayBlue = new Color(204, 204, 255, 255);
+	private final Color green = new Color(0, 128, 0, 100);
 
 	private final IAppModel model;
 	private HotelRoomTableModel tableModel;
@@ -95,9 +96,9 @@ public class AppView extends JFrame implements Observer {
 		this.setJMenuBar(new MenuBar());
 
 		final JPanel content = new JPanel();
+		content.add(createTablePanel());
 		content.add(createSearchPanel());
 		content.add(createBookingPanel());
-		content.add(createTablePanel());
 		content.add(createMessageLabel());
 
 		this.setContentPane(content);
@@ -147,7 +148,7 @@ public class AppView extends JFrame implements Observer {
 			lostConnectionDialog.processResponce();
 		}
 
-		final List<HotelRoom> results = new ArrayList<HotelRoom>();
+		final List<HotelRoom> results = new ArrayList<>();
 
 		final Iterator<Map.Entry<Integer, HotelRoom>> it = queryResults
 				.entrySet().iterator();
@@ -179,7 +180,7 @@ public class AppView extends JFrame implements Observer {
 			lostConnectionDialog.processResponce();
 		}
 
-		final List<HotelRoom> results = new ArrayList<HotelRoom>();
+		final List<HotelRoom> results = new ArrayList<>();
 
 		final Iterator<Map.Entry<Integer, HotelRoom>> it = queryResults
 				.entrySet().iterator();
@@ -369,7 +370,7 @@ public class AppView extends JFrame implements Observer {
 
 		final JPanel bookingPanel = new JPanel(new GridBagLayout());
 
-		bookingPanel.setBackground(grayBlue);
+		bookingPanel.setBackground(green);
 		bookingPanel.setPreferredSize(panelSize);
 		bookingPanel.setVisible(true);
 		bookingPanel.setBorder(greyBorder);

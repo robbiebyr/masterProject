@@ -85,7 +85,7 @@ public class DataRemote extends UnicastRemoteObject implements DBAccessRemote {
 		if (cookie == lockCookie) {
 			unlock(recNo, lockCookie);
 		} else {
-			throw new SecurityException("Incorrect cookie to unlock record");
+			throw new SecurityException("Incorrect cookie to unlock record 3");
 		}
 	}
 

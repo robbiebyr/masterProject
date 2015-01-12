@@ -122,7 +122,7 @@ public class DBFileIO {
 	 */
 	public CopyOnWriteArrayList<HotelRoom> getAllRecords() throws IOException {
 		final CopyOnWriteArrayList<HotelRoom> records = new CopyOnWriteArrayList<HotelRoom>();
-		recordFileLocationsInBytes = new ArrayList<Long>();
+		recordFileLocationsInBytes = new ArrayList<>();
 		DELETED_RECORD = "0xFF".getBytes();
 
 		dbFileAccess = new RandomAccessFile(DATABASE_LOCATION, "r");

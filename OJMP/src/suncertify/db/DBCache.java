@@ -17,7 +17,7 @@ import suncertify.model.HotelRoom;
  */
 public class DBCache {
 
-	static CopyOnWriteArrayList<HotelRoom> recordsCache = new CopyOnWriteArrayList<HotelRoom>();
+	static CopyOnWriteArrayList<HotelRoom> recordsCache = new CopyOnWriteArrayList<>();
 	String[] fieldNames;
 
 	/**
