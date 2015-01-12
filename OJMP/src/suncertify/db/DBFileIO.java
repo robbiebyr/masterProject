@@ -22,7 +22,7 @@ public class DBFileIO {
 	private static String DATABASE_LOCATION = "";
 	private static final String ENCODING = "US-ASCII";
 	private static RandomAccessFile dbFileAccess;
-	private static int recordLength;
+	private static long NON_CHANGING_DATA_LENGTH;
 	private static int numberOfFields;
 	private static String[] fieldNames;
 	private static int[] fieldLengths;
@@ -61,18 +61,20 @@ public class DBFileIO {
 	public static void writeAllRecordsToFile(
 			final CopyOnWriteArrayList<HotelRoom> recordsCache)
 			throws IOException {
+
+		dbFileAccess.seek(0);
+		final byte[] startOfFile = new byte[(int) NON_CHANGING_DATA_LENGTH];
+		dbFileAccess.read(startOfFile);
 		dbFileAccess = new RandomAccessFile(DATABASE_LOCATION, "rw");
 
-		clearDBFile();
+		clearFileAfterHeaders();
 
-		final long recordSize = recordFileLocationsInBytes.get(1)
-				- recordFileLocationsInBytes.get(0);
+		dbFileAccess.write(startOfFile);
 
 		for (int x = 0; x < recordsCache.size(); x++) {
 			final HotelRoom room = recordsCache.get(x);
-			dbFileAccess.getChannel().position((recordSize * x) + recordLength);
 
-			dbFileAccess.write(new byte[2]);
+			dbFileAccess.write(new byte[1]);
 
 			for (int i = 0; i < numberOfFields; i++) {
 				byte[] buffer = new byte[fieldLengths[i]];
@@ -106,6 +108,7 @@ public class DBFileIO {
 				dbFileAccess.write(buffer);
 			}
 		}
+
 		dbFileAccess.close();
 	}
 
@@ -124,7 +127,6 @@ public class DBFileIO {
 
 		dbFileAccess = new RandomAccessFile(DATABASE_LOCATION, "r");
 
-		// Magic cookie value is not used so no need for a local variable.
 		dbFileAccess.readInt();
 
 		numberOfFields = dbFileAccess.readShort();
@@ -144,6 +146,8 @@ public class DBFileIO {
 			dbFileAccess.readFully(fieldValueNumOfBytes);
 			fieldLengths[i] = convertByteArrayToInt(fieldValueNumOfBytes);
 		}
+
+		NON_CHANGING_DATA_LENGTH = dbFileAccess.getFilePointer();
 
 		// Read data for HotelRooms from here.
 		while (true) {
@@ -208,8 +212,8 @@ public class DBFileIO {
 		return combined.getBytes();
 	}
 
-	private static void clearDBFile() throws IOException {
-		dbFileAccess.setLength(recordFileLocationsInBytes.get(0));
+	private static void clearFileAfterHeaders() throws IOException {
+		dbFileAccess.setLength(0);
 	}
 
 	private static int convertByteArrayToInt(final byte[] byteArray) {

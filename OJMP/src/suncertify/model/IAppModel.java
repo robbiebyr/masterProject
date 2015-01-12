@@ -87,7 +87,7 @@ public interface IAppModel {
 	 *            JTable selection number.
 	 * @return Record number corresponding to selection.
 	 */
-	public abstract Long getActualIndexMap(long selection);
+	public abstract Long getActualIndexMap(int selection);
 
 	/**
 	 * This method is used to return total number of records.

@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Used to lock record in the DBCache to prevent multiple clients modifying the
- * same record at the sme time.
+ * same record at the same time.
  * 
  * @author Robbie
  * 

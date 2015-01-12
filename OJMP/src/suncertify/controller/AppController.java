@@ -31,7 +31,7 @@ public class AppController {
 	IAppModel model;
 	AppView view;
 	String owner = "";
-	long selectedRecord;
+	int selectedRecord;
 	String enterNumberMessage = "Please enter a 8 digit Customer ID";
 	String selectRoomMessage = "Please select a room to book from table";
 	int MAX_ID_DIGITS = 8;
@@ -99,7 +99,8 @@ public class AppController {
 
 			if (view.getTable().getModel().getRowCount() < model
 					.getTotalNumberRecords()) {
-				selectedRecord = model.getActualIndexMap(selectedRecord);
+				selectedRecord = model.getActualIndexMap(selectedRecord)
+						.intValue();
 			}
 
 			try {

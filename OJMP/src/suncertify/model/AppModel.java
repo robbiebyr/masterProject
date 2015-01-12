@@ -116,7 +116,7 @@ public class AppModel extends Observable implements IAppModel {
 	}
 
 	@Override
-	public Long getActualIndexMap(final long selection) {
+	public Long getActualIndexMap(final int selection) {
 		return actualIndexMap.get(selection);
 	}
 
