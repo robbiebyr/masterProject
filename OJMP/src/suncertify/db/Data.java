@@ -61,9 +61,6 @@ public class Data implements DBAccessExtended {
 		cache.updateRecord(recNo, data[ownerIndex]);
 		if (cookie == lockCookie) {
 			unlock(recNo, lockCookie);
-		} else {
-			throw new SecurityException(
-					"Incorrect cookie to unlock and update record");
 		}
 	}
 

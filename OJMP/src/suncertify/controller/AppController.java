@@ -1,5 +1,6 @@
 package suncertify.controller;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -28,13 +29,14 @@ import suncertify.view.AppView;
  */
 public class AppController {
 
-	IAppModel model;
-	AppView view;
-	String owner = "";
-	int selectedRecord;
-	String enterNumberMessage = "Please enter a 8 digit Customer ID";
-	String selectRoomMessage = "Please select a room to book from table";
-	int MAX_ID_DIGITS = 8;
+	private final IAppModel model;
+	private final AppView view;
+	private String owner = "";
+	private int selectedRecord;
+	private final String enterNumberMessage = "Please enter a 8 digit Customer ID";
+	private final String selectRoomMessage = "Please select a room to book from table";
+	private final int MAX_ID_DIGITS = 8;
+	private final Color errorMessageColor = new Color(255, 0, 0);
 
 	/**
 	 * This is the constructor of the AppController class. Takes the model and
@@ -109,12 +111,15 @@ public class AppController {
 
 			} catch (final RecordNotAvailableException e) {
 				view.getNoteLabel().setText(e.getMessage());
+				view.getNoteLabel().setForeground(errorMessageColor);
 				view.update(null, null);
 			} catch (final RecordNotFoundException e) {
 				view.getNoteLabel().setText(e.getMessage());
+				view.getNoteLabel().setForeground(errorMessageColor);
 				view.update(null, null);
 			} catch (final SecurityException e) {
 				view.getNoteLabel().setText(e.getMessage());
+				view.getNoteLabel().setForeground(errorMessageColor);
 				view.update(null, null);
 			}
 
@@ -139,7 +144,7 @@ public class AppController {
 					final int cust = Integer.parseInt(view.getCustIdField()
 							.getText());
 					noteLabel
-							.setText("Click \"Book\" to Reserve room for Customer: "
+							.setText("Click \"Book Room\" to Reserve room for Customer: "
 									+ cust);
 					view.getBookButton().setEnabled(true);
 				} catch (final NumberFormatException excep) {
