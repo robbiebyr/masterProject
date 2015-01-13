@@ -1,0 +1,94 @@
+General Considerations	
+-------------------------
+- All public methods have javadocs, but Overridden methods use the javadocs from the interface they implement.
+
+- Searching in the application will return booked and unbooked records.
+
+- The search method uses contains() rather than a much harder to implement pattern matching solution but still search's correctly.
+
+- AppController class initially contains references to Swing objects but as the controller class isn't a GUI object itself, I decided to remove these references from the class and instead call the objects directly on the AppView object. It has a reference to both the view and the model of the application.
+	- ActionListeners are used by the controller to react to user operations on the view.
+ 	- The controller may update the model based on these user operations.
+ 	- The controller may tell the view to change what/how components are shown to end user based on user operations.
+
+- To provide extra methods to those provided in the BDAccess interface, I created a new interface called DBAccessExtended which extended DBAccess.
+This new interface has three new method:
+	- Return the fields of a record.
+	- Return the cookie for the client.
+	- Return boolean saying if a record is locked or not.
+
+- Once a booking has been made, it cannot be cancelled or updated so any mistake cannot be undone. Since I was not asked to implement delete functionallity for  booked record I believe it is outside the scope for this application.
+
+- MVC patter was used with the below structure:
+													AppModel(data); Observed by view for changes in data.
+													AppView(model); Observer on model to request the new data when a change in the model occurs.
+													AppController(model, view); - has listeners on the view, can also send data to model.
+
+- Since this is a last minute booking system I assumed that a stay of one night was the maximum allowed by a customer.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+The DBCache
+------------
+- An in memory cache was used to store HotelRoom records. All clients access this cache concurrently.
+
+- I used a CopyOnWriteArrayList for the cache of HotelRoom records as I was getting a ConcurrentModificationException if I was iterating over the collection while a record was being updated or deleted by another thread (RMI client). 
+I made the assumption that this application would use more "find" operations than "book" operations so this is the ideal use for the CopyOnWriteArrayList, since the collection creates a copy of the underlying ArrayList every time there is a change.
+
+- I assumed that the server needs to running the most amount of time possible so the cache is only written to file when the server is shut down. I have decided to write the records to file in the same order that they are read in to the cache, this means that the records of the file will be completely overwritten when the write to file occurs. Since the server will be shut down very rarely I believed that the overhead of rewriting the complete file is acceptable.
+
+- No deleted records will be writen back to the file as these are removed from the cache when the file is read in.
+
+- When reading the records into the cache from the file, all records with the deleted record flag will not be added to Cache.
+
+- ServerClosingHook class is used to monitor when a virtual-machine shut down has been initiated. The hook is attached to monitor the current VM. When a shut down is initiated, the run method of the hook is called which writes the cache back to the file.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Object-Oriented Design
+------------------------
+- Used domain object HotelRoom which has a static string [] to HotelRoom object method and vice-versa.
+
+- The HotelRoom object fields are all strings. I chose to the date, price and size as Strings as having to convert the date string from the file to a Date object and then back to a string again for the JTable seemed unnecessary complex especially since there was no requirement to search by date. The price field has the added complexity of having the currency symbol before the price. To avoid unnecessary string concatenation's which are expensive operations in java, it was better to leave the price as a string.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+GUI
+----
+- I mapped the queried subset of record numbers to a table index so that when a record is selected in the table, I determine what record it was in the cache by calling get on that Map with the table selection index.
+
+- I wrote a RoomTableModel which extends AbstractTableModel as this was a simple way to populate the table with the records. AbstractTableModel provided the methods I needed to override and once that was done correctly, the JTable was populated.
+
+- To book a HotelRoom the customer id field needs to be filled in. The "Book Room" button only becomes available when exactly 8 digits have been entered. There was no information regarding what a valid customer id looked like so all values from 00000000 to 99999999 are allowed.
+
+- When a client books a record and then another client tries to book a record because it looks available in their table, a RecordNotAvailable exception is throw and a message is displayed in red on the status bar and the table is refreshed to show that the record has been booked by another client.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Locking
+--------
+- I considered an issue where a client locks a record and then the client dies or fails for some reason. This record would be locked forever, never being unlocked for use by another client. One solution would be to start a timer when a record is locked and give the client 2-5 secs to complete whatever operation and then unlock it. If the max time has elapsed and the record is still locked, it will be unlocked automatically. As this would add complexity and is outside the scope of the application, I have not implemented this functionality.
+
+- For my Data class which implements the provided interface DBAccess, the class could be regarded as a Façade, as it provides a higher-level interface that makes the subsystems (file I/O, caching and a locking manager) easier to use.
+
+- LockingManager class is used to lock individual records in the cache. By locking the records, we can avoid multiple clients updating the same record at the same time which could corrupt the data. 
+
+- In the LockingManager class the lock and unlock methods are Synchronized methods. This prevents multiple threads accessing them at the same time which could cause concurrency issues.
+
+- If an InterruptedException occurs while a client is in this waiting state, this exception is caught and a RecordNotFoundException is thrown with a message that is ultimately used in the client status bar to tell the user that the booking could not continue due to an issue locking the record.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Networking/Concurrency
+------------------------
+- I chose to use RMI instead of Sockets. RMI provides a layer of abstraction which would need to be implemented at a lower level with Sockets. In my application i chose to use rebind() over bind() because if the name is already used in the registry, that object is overwritten with this one, as opposed to bind(), where if the name is already in use, an exception is thrown.
+
+- If two clients see an available record and first client books it and then the next client tries to book it, a RecordNotAvailable exception is throw. Since the record is no longer available I believe that is a reasonable exception to throw.   
+
+- When this RecordNotAvailable exception is thrown, the client is updated with a message saying that the room has already been booked. 
+
+- In order to have one model class which would work for local and remote DBAccess implementations, I chose to create a DataProxy class. This class implements the DBAccessExtended class (This class is just an extended DBAccess interface with an extra method). This way if a RemoteException occurs during this operation, this exception will be caught by the DataProxy class and an unchecked NewRuntimeException will be thrown.
+
+- In networked mode, if the server connection is lost for any reason by the clients then a NewRuntimeException is thrown if the search or book room button is clicked. A dialog is shown to the user stating that the connection has been lost and they must exit the client. 
+
+the NetworkedServer class rebinds the object that we want available across the network. By using

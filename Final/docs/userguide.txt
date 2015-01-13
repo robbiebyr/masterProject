@@ -1,0 +1,133 @@
+############################################################################################
+############################################################################################
+
+								URLyBird User Guide (Version 1.2.3)
+	
+############################################################################################
+############################################################################################
+
+Table of Contents
+1. 	Introduction 
+2. 	Application Requirements
+3. 	How to Run the URLyBird Application
+3.1 How to Start the Server in Networked Mode
+3.2 How to Start the Client GUI in Standalone Mode
+3.3 How to Start the Networked Client GUI
+4. 	Using the Client GUI (Standalone and Networked)
+5.	Search & Book a Record Step by Step
+6.  Exiting the Application.
+
+-------------------------------------------------------------------------------------------
+
+1. Introduction
+The URLyBird Application enables Customer Service Representatives (CSR) to search and book 
+hotel books on behalf of customers. A CSR interacts with a GUI client, can enter a hotel 
+name and/or location, retrieve a list of relevant records from a database file, and book 
+the required room. This application can be run locally or across a network.
+
+-------------------------------------------------------------------------------------------
+
+2. Application Requirements
+In order to run this application, the system environment must support applications
+running Java version 1.7. If the server is run on a seperate machine, a network
+connection must be possible to that machine.
+
+In order to run the jar, it requires the db file to be at a locatable path on the machine 
+where the server is in networked mode, or where the client is in standalone mode.
+
+The jar also requires a "suncertify.properties" file. Depending on the mode, this file
+will either contain just the db file location (standalone) or the db file location, 
+hostname and port number (networked mode). These details are taken from the user at
+startup via a dialog and are then written to this file. If the file is not present, it
+will be created alongside the jar.
+
+-------------------------------------------------------------------------------------------
+
+3. How to Run the URLyBird Application
+runme.jar can accept three different flags representing three different modes of
+operation. The mode flag must be either "server", indicating the server program must run, 
+"alone", indicating standalone mode, or left out entirely, in which case the network client 
+and gui must run.
+
+3.1 How to Start the Server in Networked Mode
+To access "server" mode, where the application will be available to multiple clients 
+over a network, this command must be run: "java -jar runme.jar server".
+After running this command, a small dialog will be displayed to the user. 
+Here they must enter in the db file location, the hostname, the port number they wish the
+server to run on and they must click the "START" button. The server is now running. 
+If the user wishes to stop the server, they just need to click "STOP".
+
+3.2 How to Start the Client GUI in Standalone Mode
+To access "alone" mode, where the application will be only be available to a sinlge client 
+locally, this command must be run: "java -jar runme.jar alone".
+After running this command, a small dialog will be displayed to the user. 
+Here they must enter in the db file location and click "OK". The GUI of the application 
+will now be displayed.
+
+3.3 How to Start the Networked Client GUI
+To access the networked client mode, this command must be run: "java -jar runme.jar ".
+After running this command, a small dialog will be displayed to the user.
+Here they must enter in the hostname and the port number of the server they wish to
+connect to. After they click "OK", the client GUI will be displayed.
+
+-------------------------------------------------------------------------------------------
+
+4. Using the Client GUI (Standalone and Networked)
+When the client GUI is started, it is displayed with all records loaded into the
+table by default. 
+
+The Client GUI is split into 4 major sections:
+		- Search Panel 	(top left)
+		- Results Panel (lower half)
+		- Booking Panel (top right)
+		- Status bar	(along the bottom)
+
+The Search Panel has two input fields, one for name and the other for location.
+The CSR can search with no search criteria and all the records will be returned.
+The CSR can also search with a name and/or location value entered and the results
+will only correspond to that search criteria.
+
+The Results Panel will then display the corresponding results in the table. 
+This table shows the records using the headings name, location, size, smoking, 
+rate, date and owner. The name corresponds to the name of the hotel and
+the location is the city where the hotel resides. The size corresponds to 
+how many people the room can cater for. The smoking heading states if it is 
+permitted or not in that particular room. 
+The rate is the cost to the customer to rent the room for the date in question 
+and the currency is in US Dollars. The date represents the day for which the 
+room is available. And finally the owner heading contains the owner 
+id which is a 8 digit number corresponding to a customer. If a record contains 
+an owner id, it means that the room has been booked and is no longer available.
+
+The Booking Panel is used when the CSR has selected a record and now wishes to 
+book it for a customer. A record can be selected by clicking on the record in
+the table of the Results Panel. When this record is highlighted in the table, 
+the customer id field of the Booking Panel becomes enabled and the CSR can 
+enter a 8 digit customer id. This field can accept all characters, 
+but the Book button will only become available when an 8 digit id is entered.
+
+Now that we have a selected record and a customer id entered, we can click on 
+the Book button to reserve that room for that customer. The table will be updated with
+with the selected record now showing the entered customer ID in the owner field of the
+selected record.   
+
+-------------------------------------------------------------------------------------------
+
+5. Search & Book a Record Step by Step
+Within the application, there is a help facility which guides the user through 
+searching and booking a record. To access this, the user needs to click "Help"
+from the menu bar at the top left of the application window and then select 
+"Search & Book a Record Step by Step". A new window is 
+displayed showing the client GUI with descriptions about its displayed operation.
+Here the user can click through the five steps involved in searching and booking
+a record by using the "Next" and "Previous" buttons or they can click on one of 
+the five radio buttons directly. When finished reviewing these steps, they can
+close the window in the normal fashion.
+
+-------------------------------------------------------------------------------------------
+
+6.  Exiting the Application.
+To exit the Client GUI, just close its window. A dialog will pop up asking are you sure.
+Click "OK" and the client will close. To close the Server GUI you cannot close the window, 
+instead click the "STOP" button to stop the server and this will automatically close the
+server GUI.
